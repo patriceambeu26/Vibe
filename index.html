@@ -370,6 +370,209 @@
         }
 
         /* =========================================
+           ACCUEIL — SECTIONS ADDITIONNELLES
+        ========================================= */
+        .accueil-section {
+            padding: 100px 64px;
+            position: relative;
+        }
+        .accueil-section.acc-alt {
+            background: rgba(5,10,30,0.45);
+            border-top: 1px solid rgba(109,40,217,0.12);
+            border-bottom: 1px solid rgba(109,40,217,0.12);
+        }
+        .acc-section-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Contexte */
+        .acc-contexte-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 64px;
+            margin-top: 40px;
+            align-items: start;
+        }
+        .acc-contexte-text p {
+            color: var(--gray-light);
+            line-height: 1.85;
+            font-size: 1.02rem;
+        }
+        .acc-contexte-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+        .acc-ctx-card {
+            background: var(--dark-2);
+            border: 1px solid rgba(109,40,217,0.18);
+            border-radius: 16px;
+            padding: 24px 20px;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+        .acc-ctx-card:hover {
+            border-color: rgba(217,70,239,0.45);
+            transform: translateY(-4px);
+        }
+        .acc-ctx-icon { font-size: 1.6rem; margin-bottom: 12px; }
+        .acc-ctx-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; color: var(--white); }
+        .acc-ctx-desc { font-size: 0.8rem; color: var(--gray); line-height: 1.5; }
+
+        /* Présentation */
+        .acc-pres-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+        .acc-pres-card {
+            background: linear-gradient(135deg, rgba(13,148,136,0.15) 0%, rgba(109,40,217,0.2) 60%, rgba(217,70,239,0.12) 100%);
+            border: 1px solid rgba(217,70,239,0.25);
+            border-radius: 24px;
+            padding: 48px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .acc-pres-glow {
+            position: absolute; inset: -40px;
+            background: radial-gradient(circle at 50% 50%, rgba(109,40,217,0.25) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .acc-pres-badge {
+            display: inline-block;
+            background: var(--grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 0.72rem; font-weight: 800;
+            letter-spacing: 4px; text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+        .acc-pres-big {
+            font-size: 3rem; font-weight: 900;
+            line-height: 1.1; letter-spacing: -1.5px;
+            margin-bottom: 16px;
+        }
+        .acc-pres-sub {
+            font-size: 0.9rem; color: var(--gray-light);
+            margin-bottom: 28px;
+        }
+        .acc-pres-tags {
+            display: flex; flex-wrap: wrap; gap: 10px;
+        }
+        .acc-pres-tags span {
+            background: rgba(217,70,239,0.12);
+            border: 1px solid rgba(217,70,239,0.28);
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: 0.78rem; font-weight: 600;
+            color: var(--gold-light);
+        }
+        .acc-pres-stat {
+            display: flex; flex-direction: column;
+            align-items: center;
+            background: var(--dark-2);
+            border: 1px solid rgba(217,70,239,0.15);
+            border-radius: 14px;
+            padding: 18px 24px;
+            min-width: 90px;
+        }
+        .acc-pres-num {
+            font-size: 1.8rem; font-weight: 900;
+            background: var(--grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .acc-pres-lbl { font-size: 0.72rem; color: var(--gray); margin-top: 4px; }
+
+        /* Activités */
+        .acc-act-grid {
+            display: grid;
+            grid-template-columns: repeat(4,1fr);
+            gap: 24px;
+        }
+        .acc-act-card {
+            background: var(--dark-2);
+            border: 1px solid rgba(109,40,217,0.18);
+            border-radius: 20px;
+            padding: 32px 24px;
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+            position: relative; overflow: hidden;
+        }
+        .acc-act-card::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(135deg, rgba(13,148,136,0.06) 0%, rgba(109,40,217,0.08) 100%);
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .acc-act-card:hover { border-color: rgba(217,70,239,0.5); transform: translateY(-6px); box-shadow: 0 20px 40px rgba(109,40,217,0.2); }
+        .acc-act-card:hover::before { opacity: 1; }
+        .acc-act-icon { font-size: 2.2rem; margin-bottom: 18px; }
+        .acc-act-title { font-size: 1.05rem; font-weight: 800; margin-bottom: 12px; color: var(--white); }
+        .acc-act-desc { font-size: 0.83rem; color: var(--gray); line-height: 1.65; margin-bottom: 20px; }
+        .acc-act-tag {
+            display: inline-block;
+            background: rgba(217,70,239,0.1);
+            border: 1px solid rgba(217,70,239,0.2);
+            border-radius: 12px;
+            padding: 4px 12px;
+            font-size: 0.72rem; font-weight: 600;
+            color: var(--gold-light);
+        }
+
+        /* Programme */
+        .acc-prog-table {
+            background: var(--dark-2);
+            border: 1px solid rgba(109,40,217,0.18);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .acc-prog-row {
+            display: grid;
+            grid-template-columns: 130px 1fr 140px;
+            align-items: center;
+            padding: 20px 32px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: background 0.2s;
+        }
+        .acc-prog-row:last-child { border-bottom: none; }
+        .acc-prog-row:not(.acc-prog-header):hover { background: rgba(109,40,217,0.08); }
+        .acc-prog-header {
+            background: rgba(109,40,217,0.18);
+            font-size: 0.72rem; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase;
+            color: var(--gold);
+        }
+        .prog-time-badge {
+            background: rgba(13,148,136,0.15);
+            border: 1px solid rgba(13,148,136,0.3);
+            border-radius: 8px;
+            padding: 5px 12px;
+            font-size: 0.85rem; font-weight: 700;
+            color: #5eead4;
+            font-family: 'Courier New', monospace;
+        }
+        .acc-prog-event strong { display: block; font-size: 0.95rem; color: var(--white); }
+        .acc-prog-sub {
+            display: block; font-size: 0.78rem;
+            color: var(--gray); margin-top: 4px;
+        }
+        .prog-type-badge {
+            display: inline-block;
+            border-radius: 10px;
+            padding: 4px 12px;
+            font-size: 0.72rem; font-weight: 700;
+        }
+        .type-accueil  { background: rgba(13,148,136,0.15); color: #5eead4; border: 1px solid rgba(13,148,136,0.3); }
+        .type-ceremonie{ background: rgba(217,70,239,0.15); color: #f0abfc; border: 1px solid rgba(217,70,239,0.3); }
+        .type-conf     { background: rgba(109,40,217,0.2);  color: #c4b5fd; border: 1px solid rgba(109,40,217,0.4); }
+        .type-atelier  { background: rgba(234,179,8,0.12);  color: #fde68a; border: 1px solid rgba(234,179,8,0.25); }
+        .type-pause    { background: rgba(100,116,139,0.2); color: #94a3b8; border: 1px solid rgba(100,116,139,0.3); }
+        .type-compet   { background: rgba(239,68,68,0.12);  color: #fca5a5; border: 1px solid rgba(239,68,68,0.25); }
+
+        /* =========================================
            SECTION COMMUNES
         ========================================= */
         .page-inner {
@@ -1318,12 +1521,24 @@
             .org-grid { grid-template-columns: 1fr 1fr; }
         }
 
+        @media (max-width: 1024px) {
+            .acc-act-grid { grid-template-columns: repeat(2,1fr); }
+            .acc-contexte-grid { grid-template-columns: 1fr; gap: 40px; }
+            .acc-pres-grid { grid-template-columns: 1fr; gap: 48px; }
+        }
+
         @media (max-width: 768px) {
             nav { padding: 14px 20px; }
             .nav-links { display: none; }
             .hamburger { display: flex; }
             .page-inner { padding: 48px 24px; }
             .stats-band { padding: 40px 24px; }
+            .accueil-section { padding: 64px 24px; }
+            .acc-act-grid { grid-template-columns: 1fr; }
+            .acc-contexte-cards { grid-template-columns: 1fr 1fr; }
+            .acc-prog-row { grid-template-columns: 100px 1fr; padding: 16px 20px; }
+            .acc-prog-type { display: none; }
+            .acc-prog-header .acc-prog-type { display: none; }
             .stats-grid { grid-template-columns: repeat(2,1fr); gap: 24px; }
             .stats-grid > div:last-child { grid-column: span 2; }
             .hero-content { padding: 0 24px; }
@@ -1421,6 +1636,193 @@
             <div class="reveal d4"><span class="stat-number" data-target="200" data-suffix="+">0</span><span class="stat-label">Personnes sensibilisées</span></div>
         </div>
     </div>
+
+    <!-- ── SECTION CONTEXTE ── -->
+    <section class="accueil-section" id="acc-contexte">
+        <div class="acc-section-inner">
+            <p class="section-tag reveal">Contexte</p>
+            <h2 class="section-title reveal">L'IA comme levier de<br><span>transformation</span> en Côte d'Ivoire</h2>
+            <div class="gold-line reveal"></div>
+            <div class="acc-contexte-grid">
+                <div class="acc-contexte-text reveal">
+                    <p>
+                        L'intelligence artificielle redéfinit les règles de l'économie mondiale. Pourtant, en Afrique subsaharienne — et particulièrement en Côte d'Ivoire — son adoption reste freinée par plusieurs obstacles structurels : accès limité aux formations spécialisées, perception de l'IA comme un domaine réservé aux experts techniques, et manque de sensibilisation au potentiel transformateur de ces outils.
+                    </p>
+                    <p style="margin-top:18px;">
+                        Face à ce constat, il est urgent de créer des espaces concrets d'initiation, d'expérimentation et de compétition qui permettent à chacun — étudiant, entrepreneur, créatif — de s'approprier ces technologies et d'en faire un levier de développement personnel et collectif.
+                    </p>
+                </div>
+                <div class="acc-contexte-cards reveal d1">
+                    <div class="acc-ctx-card">
+                        <div class="acc-ctx-icon">⚡</div>
+                        <div class="acc-ctx-title">Accès limité</div>
+                        <div class="acc-ctx-desc">Peu de formations pratiques à l'IA disponibles localement</div>
+                    </div>
+                    <div class="acc-ctx-card">
+                        <div class="acc-ctx-icon">🔒</div>
+                        <div class="acc-ctx-title">IA perçue complexe</div>
+                        <div class="acc-ctx-desc">Réservée aux ingénieurs, inaccessible au grand public</div>
+                    </div>
+                    <div class="acc-ctx-card">
+                        <div class="acc-ctx-icon">📉</div>
+                        <div class="acc-ctx-title">Faible adoption</div>
+                        <div class="acc-ctx-desc">Manque de projets locaux exploitant le potentiel de l'IA</div>
+                    </div>
+                    <div class="acc-ctx-card">
+                        <div class="acc-ctx-icon">💡</div>
+                        <div class="acc-ctx-title">Sensibilisation urgente</div>
+                        <div class="acc-ctx-desc">Besoin d'initiatives concrètes pour démocratiser l'IA</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── SECTION PRÉSENTATION ── -->
+    <section class="accueil-section acc-alt" id="acc-presentation">
+        <div class="acc-section-inner">
+            <div class="acc-pres-grid">
+                <div class="acc-pres-visual reveal">
+                    <div class="acc-pres-card">
+                        <div class="acc-pres-glow"></div>
+                        <div class="acc-pres-badge">VIBECODING</div>
+                        <div class="acc-pres-big">Crée.<br>Sans coder.</div>
+                        <div class="acc-pres-sub">Langage naturel × Intelligence Artificielle</div>
+                        <div class="acc-pres-tags">
+                            <span>Prompts</span>
+                            <span>ChatGPT</span>
+                            <span>Cursor</span>
+                            <span>Bolt</span>
+                            <span>Lovable</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="acc-pres-text reveal d1">
+                    <p class="section-tag">Présentation</p>
+                    <h2 class="section-title">Le <span>Vibeathon</span>,<br>c'est quoi ?</h2>
+                    <div class="gold-line"></div>
+                    <p style="margin-top:28px;line-height:1.8;color:var(--gray-light);">
+                        Le <strong style="color:var(--white);">VIBEATHON CÔTE D'IVOIRE 2026</strong> est le premier hackathon inclusif de Côte d'Ivoire entièrement basé sur le <em style="color:var(--gold);">vibecoding</em> — une approche révolutionnaire qui permet à n'importe qui de créer des applications, des sites web et des outils numériques en utilisant uniquement le langage naturel et l'intelligence artificielle.
+                    </p>
+                    <p style="margin-top:16px;line-height:1.8;color:var(--gray-light);">
+                        Organisé par <strong style="color:var(--white);">CREATIV'O, CREATIVX et RIT-AFRICA</strong>, cet événement réunit 300 participants autour d'une journée de formation, d'inspiration et de compétition — ouverte à tous, sans prérequis techniques.
+                    </p>
+                    <div style="margin-top:36px;display:flex;gap:16px;flex-wrap:wrap;">
+                        <div class="acc-pres-stat">
+                            <span class="acc-pres-num">300</span>
+                            <span class="acc-pres-lbl">Participants</span>
+                        </div>
+                        <div class="acc-pres-stat">
+                            <span class="acc-pres-num">950K</span>
+                            <span class="acc-pres-lbl">FCFA en prix</span>
+                        </div>
+                        <div class="acc-pres-stat">
+                            <span class="acc-pres-num">1</span>
+                            <span class="acc-pres-lbl">Journée</span>
+                        </div>
+                    </div>
+                    <button class="btn-primary" style="margin-top:36px;" onclick="showPage('about')">En savoir plus &rarr;</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── SECTION ACTIVITÉS ── -->
+    <section class="accueil-section" id="acc-activites">
+        <div class="acc-section-inner">
+            <p class="section-tag reveal" style="text-align:center;">Activités</p>
+            <h2 class="section-title reveal" style="text-align:center;">Ce qui vous attend<br>le <span>11 Juillet</span></h2>
+            <div class="gold-line reveal" style="margin:18px auto 48px;"></div>
+            <div class="acc-act-grid">
+                <div class="acc-act-card reveal">
+                    <div class="acc-act-icon">🎤</div>
+                    <h3 class="acc-act-title">Keynotes & Panels</h3>
+                    <p class="acc-act-desc">Des experts et leaders tech africains partagent leur vision sur l'IA et ses opportunités pour le continent. Échanges inspirants et retours d'expérience concrets.</p>
+                    <div class="acc-act-tag">Matin · Plénière</div>
+                </div>
+                <div class="acc-act-card reveal d1">
+                    <div class="acc-act-icon">🛠️</div>
+                    <h3 class="acc-act-title">Ateliers de Formation</h3>
+                    <p class="acc-act-desc">Initiation pratique aux outils d'IA génératives (ChatGPT, Cursor, Bolt…). Apprenez à créer votre première application sans écrire une seule ligne de code.</p>
+                    <div class="acc-act-tag">Matin · Interactif</div>
+                </div>
+                <div class="acc-act-card reveal d2">
+                    <div class="acc-act-icon">🏆</div>
+                    <h3 class="acc-act-title">Compétition Vibecoding</h3>
+                    <p class="acc-act-desc">20 équipes s'affrontent pour créer la meilleure solution numérique en quelques heures. Jugés sur l'innovation, l'impact et la présentation. 950 000 FCFA de prix à gagner.</p>
+                    <div class="acc-act-tag">Après-midi · Compétitif</div>
+                </div>
+                <div class="acc-act-card reveal d3">
+                    <div class="acc-act-icon">🤖</div>
+                    <h3 class="acc-act-title">Studio d'Expérience IA</h3>
+                    <p class="acc-act-desc">Un espace d'exploration libre où vous testez les derniers outils d'IA, rencontrez des experts et découvrez comment l'IA transforme déjà votre secteur d'activité.</p>
+                    <div class="acc-act-tag">Toute la journée</div>
+                </div>
+            </div>
+            <div style="text-align:center;margin-top:48px;" class="reveal d4">
+                <button class="btn-secondary" onclick="showPage('activities')">Voir toutes les activités &rarr;</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── SECTION PROGRAMME ── -->
+    <section class="accueil-section acc-alt" id="acc-programme">
+        <div class="acc-section-inner">
+            <p class="section-tag reveal" style="text-align:center;">Programme</p>
+            <h2 class="section-title reveal" style="text-align:center;">La journée en un<br><span>coup d'œil</span></h2>
+            <div class="gold-line reveal" style="margin:18px auto 48px;"></div>
+            <div class="acc-prog-table reveal">
+                <div class="acc-prog-row acc-prog-header">
+                    <div class="acc-prog-time">Horaire</div>
+                    <div class="acc-prog-event">Activité</div>
+                    <div class="acc-prog-type">Type</div>
+                </div>
+                <div class="acc-prog-row">
+                    <div class="acc-prog-time"><span class="prog-time-badge">07h30</span></div>
+                    <div class="acc-prog-event"><strong>Accueil & Enregistrement</strong><span class="acc-prog-sub">Installation des participants, remise des kits</span></div>
+                    <div class="acc-prog-type"><span class="prog-type-badge type-accueil">Accueil</span></div>
+                </div>
+                <div class="acc-prog-row">
+                    <div class="acc-prog-time"><span class="prog-time-badge">09h00</span></div>
+                    <div class="acc-prog-event"><strong>Cérémonie d'ouverture</strong><span class="acc-prog-sub">Discours officiels, présentation du Vibeathon</span></div>
+                    <div class="acc-prog-type"><span class="prog-type-badge type-ceremonie">Cérémonie</span></div>
+                </div>
+                <div class="acc-prog-row">
+                    <div class="acc-prog-time"><span class="prog-time-badge">09h30</span></div>
+                    <div class="acc-prog-event"><strong>Keynotes & Panel IA</strong><span class="acc-prog-sub">Experts tech, entrepreneurs, acteurs de l'innovation africaine</span></div>
+                    <div class="acc-prog-type"><span class="prog-type-badge type-conf">Conférence</span></div>
+                </div>
+                <div class="acc-prog-row">
+                    <div class="acc-prog-time"><span class="prog-time-badge">11h00</span></div>
+                    <div class="acc-prog-event"><strong>Ateliers de Formation</strong><span class="acc-prog-sub">Initiation pratique aux outils d'IA générative</span></div>
+                    <div class="acc-prog-type"><span class="prog-type-badge type-atelier">Atelier</span></div>
+                </div>
+                <div class="acc-prog-row">
+                    <div class="acc-prog-time"><span class="prog-time-badge">13h00</span></div>
+                    <div class="acc-prog-event"><strong>Pause Déjeuner & Networking</strong><span class="acc-prog-sub">Restauration & rencontres entre participants</span></div>
+                    <div class="acc-prog-type"><span class="prog-type-badge type-pause">Pause</span></div>
+                </div>
+                <div class="acc-prog-row">
+                    <div class="acc-prog-time"><span class="prog-time-badge">14h00</span></div>
+                    <div class="acc-prog-event"><strong>Lancement Compétition Vibecoding</strong><span class="acc-prog-sub">Briefing des équipes, révélation du thème, démarrage</span></div>
+                    <div class="acc-prog-type"><span class="prog-type-badge type-compet">Compétition</span></div>
+                </div>
+                <div class="acc-prog-row">
+                    <div class="acc-prog-time"><span class="prog-time-badge">17h30</span></div>
+                    <div class="acc-prog-event"><strong>Pitches & Délibération</strong><span class="acc-prog-sub">Présentations des équipes devant le jury</span></div>
+                    <div class="acc-prog-type"><span class="prog-type-badge type-compet">Compétition</span></div>
+                </div>
+                <div class="acc-prog-row">
+                    <div class="acc-prog-time"><span class="prog-time-badge">19h00</span></div>
+                    <div class="acc-prog-event"><strong>Cérémonie de Clôture</strong><span class="acc-prog-sub">Remise des prix — 950 000 FCFA à gagner</span></div>
+                    <div class="acc-prog-type"><span class="prog-type-badge type-ceremonie">Cérémonie</span></div>
+                </div>
+            </div>
+            <div style="text-align:center;margin-top:40px;" class="reveal d1">
+                <button class="btn-secondary" onclick="showPage('program')">Voir le programme complet &rarr;</button>
+            </div>
+        </div>
+    </section>
 
     <footer>
         <div class="footer-bottom">
