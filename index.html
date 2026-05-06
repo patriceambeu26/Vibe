@@ -7,16 +7,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         :root {
-            --gold: #C9A84C;
-            --gold-light: #E8C96A;
-            --gold-dark: #8B6914;
-            --black: #030303;
-            --dark: #0d0d0d;
-            --dark-2: #141414;
-            --dark-3: #1c1c1c;
+            --gold: #d946ef;
+            --gold-light: #f0abfc;
+            --gold-dark: #a21caf;
+            --teal: #0d9488;
+            --indigo: #6d28d9;
+            --black: #020810;
+            --dark: #050d1f;
+            --dark-2: #080f24;
+            --dark-3: #0c1530;
             --white: #FFFFFF;
-            --gray: #777777;
-            --gray-light: #BBBBBB;
+            --gray: #6b7280;
+            --gray-light: #d1d5db;
+            --grad: linear-gradient(90deg, #0d9488, #6d28d9 55%, #d946ef);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -24,9 +27,22 @@
 
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: var(--black);
+            background: linear-gradient(135deg, #031a15 0%, #07113a 50%, #250840 100%) fixed;
             color: var(--white);
             overflow-x: hidden;
+        }
+
+        /* Lueurs globales fixes — visibles sur toutes les pages */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 8% 78%, rgba(13,148,136,0.28) 0%, transparent 42%),
+                radial-gradient(ellipse at 88% 8%,  rgba(217,70,239,0.22) 0%, transparent 42%),
+                radial-gradient(ellipse at 50% 50%, rgba(109,40,217,0.07) 0%, transparent 68%);
+            pointer-events: none;
+            z-index: 1;
         }
 
         /* =========================================
@@ -36,69 +52,75 @@
             position: fixed;
             top: 0; left: 0; right: 0;
             z-index: 1000;
-            padding: 22px 64px;
+            padding: 18px 64px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: all 0.4s ease;
-        }
-
-        nav.scrolled {
-            background: rgba(3,3,3,0.96);
+            background: rgba(2,8,16,0.97);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            border-bottom: 1px solid rgba(201,168,76,0.12);
-            padding: 14px 64px;
+            border-bottom: 1px solid rgba(217,70,239,0.15);
         }
 
         .nav-logo {
             font-size: 1.4rem;
             font-weight: 900;
             letter-spacing: 3px;
-            color: var(--gold);
+            background: var(--grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             text-decoration: none;
+            cursor: pointer;
         }
 
         .nav-links {
             display: flex;
-            gap: 32px;
+            gap: 6px;
             list-style: none;
             align-items: center;
         }
 
-        .nav-links a {
+        .nav-links button {
+            background: none;
+            border: none;
             color: var(--gray-light);
-            text-decoration: none;
-            font-size: 0.875rem;
+            font-size: 0.85rem;
             font-weight: 500;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
             letter-spacing: 0.3px;
-            transition: color 0.2s;
-            position: relative;
+            font-family: inherit;
         }
 
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -4px; left: 0;
-            width: 0; height: 1px;
-            background: var(--gold);
-            transition: width 0.3s;
+        .nav-links button:hover {
+            color: var(--gold);
+            background: rgba(217,70,239,0.06);
         }
 
-        .nav-links a:hover { color: var(--gold); }
-        .nav-links a:hover::after { width: 100%; }
+        .nav-links button.active {
+            color: var(--gold);
+            background: rgba(217,70,239,0.1);
+            border: 1px solid rgba(217,70,239,0.2);
+        }
 
         .nav-cta {
             background: var(--gold) !important;
             color: var(--black) !important;
-            padding: 10px 24px;
-            border-radius: 6px;
             font-weight: 700 !important;
-            letter-spacing: 0.5px;
         }
 
-        .nav-cta::after { display: none !important; }
-        .nav-cta:hover { background: var(--gold-light) !important; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(201,168,76,0.3); }
+        .nav-cta:hover {
+            background: var(--gold-light) !important;
+            box-shadow: 0 6px 20px rgba(217,70,239,0.3);
+        }
+
+        .nav-cta.active {
+            background: var(--gold) !important;
+            border-color: transparent !important;
+        }
 
         .hamburger {
             display: none;
@@ -109,6 +131,7 @@
             background: none;
             border: none;
         }
+
         .hamburger span {
             display: block;
             width: 24px; height: 2px;
@@ -122,31 +145,40 @@
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(3,3,3,0.98);
+            background: rgba(3,3,3,0.99);
             z-index: 999;
             padding: 90px 32px 40px;
             flex-direction: column;
-            gap: 28px;
+            gap: 8px;
         }
 
-        #mobile-menu a {
+        #mobile-menu button {
+            background: none;
+            border: none;
             color: var(--white);
-            text-decoration: none;
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             font-weight: 600;
+            padding: 16px 0;
             border-bottom: 1px solid rgba(255,255,255,0.06);
-            padding-bottom: 20px;
+            cursor: pointer;
+            text-align: left;
+            font-family: inherit;
+            width: 100%;
+            transition: color 0.2s;
         }
 
-        #mobile-menu a:last-child {
-            border-bottom: none;
+        #mobile-menu button:hover { color: var(--gold); }
+        #mobile-menu button.active { color: var(--gold); }
+
+        #mobile-menu .mob-cta {
             background: var(--gold);
             color: var(--black);
-            padding: 18px 32px;
             border-radius: 8px;
+            padding: 18px 32px;
             text-align: center;
             margin-top: 16px;
             font-weight: 700;
+            border: none;
         }
 
         .menu-close {
@@ -159,8 +191,32 @@
         }
 
         /* =========================================
-           HERO
+           PAGES (Onglets indépendants)
         ========================================= */
+        .page {
+            display: none !important;
+            min-height: 100vh;
+            padding-top: 70px;
+            animation: pageIn 0.4s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .page.active { display: block !important; }
+
+        @keyframes pageIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* =========================================
+           HERO PAGE
+        ========================================= */
+        #page-accueil {
+            padding-top: 0;
+            position: relative;
+        }
+
         #hero {
             position: relative;
             height: 100vh;
@@ -168,26 +224,27 @@
             display: flex;
             align-items: center;
             overflow: hidden;
+            background: transparent;
         }
 
         #hero-canvas {
-            position: absolute;
-            inset: 0;
-            width: 100%; height: 100%;
+            position: fixed;
+            inset: 0; width: 100%; height: 100%;
             z-index: 0;
+            pointer-events: none;
         }
 
         .hero-overlay {
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(ellipse at 30% 50%, rgba(201,168,76,0.04) 0%, transparent 70%),
-                        linear-gradient(to right, rgba(3,3,3,0.7) 40%, transparent 100%);
+            position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 10% 75%, rgba(13,148,136,0.25) 0%, transparent 45%),
+                        radial-gradient(ellipse at 85% 10%, rgba(217,70,239,0.22) 0%, transparent 45%),
+                        radial-gradient(ellipse at 50% 50%, rgba(109,40,217,0.08) 0%, transparent 70%),
+                        linear-gradient(to right, rgba(2,8,16,0.88) 35%, rgba(2,8,16,0.25) 100%);
             z-index: 1;
         }
 
         .hero-content {
-            position: relative;
-            z-index: 2;
+            position: relative; z-index: 2;
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 64px;
@@ -198,8 +255,8 @@
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            background: rgba(201,168,76,0.1);
-            border: 1px solid rgba(201,168,76,0.28);
+            background: rgba(217,70,239,0.1);
+            border: 1px solid rgba(217,70,239,0.28);
             color: var(--gold);
             font-size: 0.78rem;
             font-weight: 700;
@@ -219,7 +276,7 @@
 
         @keyframes pulse-dot {
             0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(1.5); }
+            50%       { opacity: 0.4; transform: scale(1.5); }
         }
 
         .hero-title {
@@ -230,7 +287,12 @@
             margin-bottom: 28px;
         }
 
-        .hero-title .gold { color: var(--gold); }
+        .hero-title .gold {
+            background: var(--grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
         .hero-subtitle {
             font-size: clamp(1rem, 1.8vw, 1.2rem);
@@ -241,571 +303,282 @@
         }
 
         .hero-meta {
-            display: flex;
-            gap: 36px;
+            display: flex; gap: 36px;
             margin-bottom: 52px;
             flex-wrap: wrap;
         }
 
         .hero-meta-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.875rem;
-            color: var(--gray-light);
+            display: flex; align-items: center; gap: 10px;
+            font-size: 0.875rem; color: var(--gray-light);
         }
 
-        .hero-meta-item .icon {
-            color: var(--gold);
-            font-size: 1rem;
-        }
+        .hero-meta-item .icon { color: var(--gold); }
 
-        .hero-actions {
-            display: flex;
-            gap: 16px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+        .hero-actions { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
 
         .btn-primary {
-            background: var(--gold);
-            color: var(--black);
-            padding: 16px 40px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1rem;
-            text-decoration: none;
+            background: linear-gradient(90deg, #0d9488, #6d28d9, #d946ef); color: var(--white);
+            padding: 16px 40px; border-radius: 8px;
+            font-weight: 700; font-size: 1rem;
+            text-decoration: none; border: none; cursor: pointer;
             transition: all 0.3s cubic-bezier(0.23,1,0.32,1);
-            display: inline-block;
-            letter-spacing: 0.3px;
+            display: inline-block; font-family: inherit;
         }
 
         .btn-primary:hover {
             background: var(--gold-light);
             transform: translateY(-3px);
-            box-shadow: 0 20px 60px rgba(201,168,76,0.35);
+            box-shadow: 0 20px 60px rgba(217,70,239,0.35);
         }
 
         .btn-secondary {
-            color: var(--white);
-            padding: 16px 40px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 1rem;
-            text-decoration: none;
+            color: var(--white); padding: 16px 40px; border-radius: 8px;
+            font-weight: 600; font-size: 1rem; text-decoration: none;
             border: 1px solid rgba(255,255,255,0.18);
-            transition: all 0.3s;
-            display: inline-block;
+            transition: all 0.3s; display: inline-block;
+            background: none; cursor: pointer; font-family: inherit;
         }
 
         .btn-secondary:hover {
-            border-color: var(--gold);
-            color: var(--gold);
-            background: rgba(201,168,76,0.05);
+            border-color: var(--gold); color: var(--gold);
+            background: rgba(217,70,239,0.05);
         }
 
-        .hero-scroll-hint {
-            position: absolute;
-            bottom: 40px; left: 50%;
-            transform: translateX(-50%);
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            color: var(--gray);
-            font-size: 0.75rem;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            animation: bounce 2s ease-in-out infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(8px); }
-        }
-
-        /* =========================================
-           STATS BAND
-        ========================================= */
+        /* Stats band */
         .stats-band {
             background: var(--dark-2);
-            border-top: 1px solid rgba(201,168,76,0.1);
-            border-bottom: 1px solid rgba(201,168,76,0.1);
+            border-top: 1px solid rgba(217,70,239,0.1);
+            border-bottom: 1px solid rgba(217,70,239,0.1);
             padding: 52px 64px;
         }
 
         .stats-grid {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(5,1fr);
-            gap: 40px;
-            text-align: center;
+            max-width: 1200px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(5,1fr);
+            gap: 40px; text-align: center;
         }
 
         .stat-number {
-            display: block;
-            font-size: 2.8rem;
-            font-weight: 900;
-            color: var(--gold);
-            letter-spacing: -1px;
-            line-height: 1;
+            display: block; font-size: 2.8rem; font-weight: 900;
+            color: var(--gold); letter-spacing: -1px; line-height: 1;
         }
 
         .stat-label {
-            display: block;
-            font-size: 0.8rem;
-            color: var(--gray);
-            margin-top: 8px;
-            letter-spacing: 0.5px;
+            display: block; font-size: 0.8rem; color: var(--gray);
+            margin-top: 8px; letter-spacing: 0.5px;
         }
 
         /* =========================================
-           SECTIONS COMMON
+           SECTION COMMUNES
         ========================================= */
-        section { padding: 130px 64px; }
-
-        .container {
+        .page-inner {
             max-width: 1200px;
             margin: 0 auto;
+            padding: 80px 64px;
         }
 
         .section-tag {
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 3.5px;
-            text-transform: uppercase;
-            color: var(--gold);
-            margin-bottom: 14px;
+            font-size: 0.72rem; font-weight: 700;
+            letter-spacing: 3.5px; text-transform: uppercase;
+            color: var(--gold); margin-bottom: 14px;
         }
 
         .section-title {
             font-size: clamp(2.2rem, 4.5vw, 3.5rem);
-            font-weight: 900;
-            line-height: 1.08;
-            letter-spacing: -1.5px;
-            margin-bottom: 16px;
+            font-weight: 900; line-height: 1.08;
+            letter-spacing: -1.5px; margin-bottom: 16px;
         }
 
         .section-title span { color: var(--gold); }
 
         .gold-line {
             width: 56px; height: 3px;
-            background: var(--gold);
-            border-radius: 2px;
+            background: var(--gold); border-radius: 2px;
             margin: 20px 0 44px;
         }
 
         .section-subtitle {
-            font-size: 1.05rem;
-            color: var(--gray-light);
-            line-height: 1.75;
-            max-width: 580px;
+            font-size: 1.05rem; color: var(--gray-light);
+            line-height: 1.75; max-width: 620px;
         }
 
         /* =========================================
-           ABOUT
+           PAGE À PROPOS
         ========================================= */
-        #about { background: var(--dark); }
+        #page-about { background: transparent; }
 
         .about-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 90px;
-            align-items: center;
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 90px; align-items: center;
         }
-
-        .about-visual { position: relative; }
 
         .card-3d {
             background: var(--dark-2);
-            border: 1px solid rgba(201,168,76,0.14);
-            border-radius: 24px;
-            padding: 52px;
+            border: 1px solid rgba(217,70,239,0.14);
+            border-radius: 24px; padding: 52px;
             text-align: center;
-            transform-style: preserve-3d;
             transition: transform 0.15s ease;
-            cursor: default;
-            position: relative;
-            overflow: hidden;
+            cursor: default; position: relative; overflow: hidden;
         }
 
         .card-3d::before {
             content: '';
-            position: absolute;
-            top: -50%; left: -50%;
+            position: absolute; top: -50%; left: -50%;
             width: 200%; height: 200%;
-            background: radial-gradient(ellipse at center, rgba(201,168,76,0.04) 0%, transparent 60%);
+            background: radial-gradient(ellipse at center, rgba(217,70,239,0.04) 0%, transparent 60%);
             pointer-events: none;
         }
 
-        .card-3d .ai-big {
-            font-size: 5.5rem;
-            font-weight: 900;
-            color: var(--gold);
-            line-height: 1;
-            letter-spacing: -3px;
-        }
-
-        .card-3d .ai-subtitle {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--white);
-            margin-top: 10px;
-        }
-
-        .card-3d .ai-desc {
-            font-size: 0.875rem;
-            color: var(--gray);
-            margin-top: 12px;
-            line-height: 1.6;
-        }
+        .ai-big { font-size: 5.5rem; font-weight: 900; color: var(--gold); line-height: 1; letter-spacing: -3px; }
+        .ai-subtitle { font-size: 1.1rem; font-weight: 600; color: var(--white); margin-top: 10px; }
+        .ai-desc { font-size: 0.875rem; color: var(--gray); margin-top: 12px; line-height: 1.6; }
 
         .card-mini-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 36px;
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 12px; margin-top: 36px;
         }
 
         .card-mini {
-            background: rgba(201,168,76,0.08);
-            border: 1px solid rgba(201,168,76,0.12);
-            border-radius: 12px;
-            padding: 18px 12px;
-            text-align: center;
+            background: rgba(217,70,239,0.08);
+            border: 1px solid rgba(217,70,239,0.12);
+            border-radius: 12px; padding: 18px 12px; text-align: center;
         }
 
-        .card-mini-num {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: var(--gold);
-        }
-
-        .card-mini-label {
-            font-size: 0.72rem;
-            color: var(--gray);
-            margin-top: 4px;
-            letter-spacing: 0.5px;
-        }
+        .card-mini-num { font-size: 1.8rem; font-weight: 900; color: var(--gold); }
+        .card-mini-label { font-size: 0.72rem; color: var(--gray); margin-top: 4px; }
 
         .float-tag {
             position: absolute;
-            background: var(--gold);
-            color: var(--black);
-            font-size: 0.82rem;
-            font-weight: 800;
-            padding: 12px 18px;
-            border-radius: 10px;
+            background: var(--gold); color: var(--black);
+            font-size: 0.82rem; font-weight: 800;
+            padding: 12px 18px; border-radius: 10px;
             box-shadow: 0 16px 40px rgba(0,0,0,0.5);
             white-space: nowrap;
         }
 
-        .float-tag.tr {
-            top: -18px; right: -24px;
-            animation: float-anim 3s ease-in-out infinite;
-        }
-
-        .float-tag.bl {
-            bottom: -18px; left: -24px;
-            animation: float-anim 3s ease-in-out infinite 1.5s;
-        }
+        .float-tag.tr { top: -18px; right: -24px; animation: float-anim 3s ease-in-out infinite; }
+        .float-tag.bl { bottom: -18px; left: -24px; animation: float-anim 3s ease-in-out infinite 1.5s; }
 
         @keyframes float-anim {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+            50%       { transform: translateY(-10px); }
         }
 
-        .about-text p {
-            font-size: 0.95rem;
-            color: var(--gray-light);
-            line-height: 1.85;
-            margin-bottom: 18px;
-        }
-
+        .about-text p { font-size: 0.95rem; color: var(--gray-light); line-height: 1.85; margin-bottom: 18px; }
         .about-text strong { color: var(--gold); }
 
         /* =========================================
-           CONTEXT
+           PAGE CONTEXTE
         ========================================= */
-        #context { background: var(--black); }
+        #page-context { background: transparent; }
 
         .context-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 80px;
-            align-items: start;
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 80px; align-items: start;
         }
 
-        .challenges-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            margin-top: 48px;
-        }
+        .challenges-list { display: flex; flex-direction: column; gap: 20px; margin-top: 48px; }
 
         .challenge-item {
-            display: flex;
-            gap: 20px;
-            align-items: flex-start;
-            padding: 24px;
-            background: var(--dark-2);
+            display: flex; gap: 20px; align-items: flex-start;
+            padding: 24px; background: var(--dark-2);
             border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 14px;
-            transition: all 0.3s;
+            border-radius: 14px; transition: all 0.3s;
         }
 
         .challenge-item:hover {
-            border-color: rgba(201,168,76,0.22);
-            background: rgba(201,168,76,0.04);
+            border-color: rgba(217,70,239,0.22);
+            background: rgba(217,70,239,0.04);
             transform: translateX(6px);
         }
 
-        .challenge-num {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: rgba(201,168,76,0.2);
-            line-height: 1;
-            flex-shrink: 0;
-            width: 36px;
-        }
-
-        .challenge-item h3 {
-            font-size: 0.95rem;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-
-        .challenge-item p {
-            font-size: 0.85rem;
-            color: var(--gray);
-            line-height: 1.6;
-        }
+        .challenge-num { font-size: 1.8rem; font-weight: 900; color: rgba(217,70,239,0.2); line-height: 1; flex-shrink: 0; width: 36px; }
+        .challenge-item h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; }
+        .challenge-item p { font-size: 0.85rem; color: var(--gray); line-height: 1.6; }
 
         .solutions-box {
-            background: linear-gradient(135deg, rgba(201,168,76,0.1) 0%, rgba(201,168,76,0.03) 100%);
-            border: 1px solid rgba(201,168,76,0.22);
-            border-radius: 20px;
-            padding: 44px;
-            position: sticky;
-            top: 100px;
+            background: linear-gradient(135deg, rgba(217,70,239,0.1) 0%, rgba(217,70,239,0.03) 100%);
+            border: 1px solid rgba(217,70,239,0.22);
+            border-radius: 20px; padding: 44px;
+            position: sticky; top: 100px;
         }
 
-        .solutions-box h3 {
-            font-size: 1.2rem;
-            font-weight: 800;
-            margin-bottom: 28px;
-            color: var(--gold);
-        }
+        .solutions-box h3 { font-size: 1.2rem; font-weight: 800; margin-bottom: 28px; color: var(--gold); }
 
         .solution-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 14px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            font-size: 0.9rem;
-            color: var(--gray-light);
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.9rem; color: var(--gray-light);
         }
 
         .solution-item:last-child { border-bottom: none; }
 
         .solution-icon {
             width: 34px; height: 34px;
-            background: rgba(201,168,76,0.12);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            font-size: 1rem;
+            background: rgba(217,70,239,0.12); border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; font-size: 1rem;
         }
 
         /* =========================================
-           OBJECTIVES
+           PAGE ACTIVITÉS
         ========================================= */
-        #objectives { background: var(--dark); }
-
-        .objectives-grid {
-            display: grid;
-            grid-template-columns: repeat(3,1fr);
-            gap: 22px;
-            margin-top: 60px;
-        }
-
-        .obj-card {
-            background: var(--dark-2);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 18px;
-            padding: 36px 32px;
-            transition: all 0.4s cubic-bezier(0.23,1,0.32,1);
-            transform-style: preserve-3d;
-        }
-
-        .obj-card:hover {
-            background: rgba(201,168,76,0.05);
-            border-color: rgba(201,168,76,0.24);
-            transform: translateY(-8px);
-            box-shadow: 0 32px 80px rgba(0,0,0,0.6);
-        }
-
-        .obj-icon {
-            width: 52px; height: 52px;
-            background: rgba(201,168,76,0.1);
-            border: 1px solid rgba(201,168,76,0.15);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-            margin-bottom: 24px;
-        }
-
-        .obj-card h3 {
-            font-size: 1rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            line-height: 1.4;
-        }
-
-        .obj-card p {
-            font-size: 0.858rem;
-            color: var(--gray);
-            line-height: 1.65;
-        }
-
-        /* =========================================
-           ACTIVITIES
-        ========================================= */
-        #activities { background: var(--black); }
+        #page-activities { background: transparent; }
 
         .activities-grid {
-            display: grid;
-            grid-template-columns: repeat(3,1fr);
-            grid-auto-rows: auto;
+            display: grid; grid-template-columns: repeat(3,1fr);
             gap: 20px;
-            margin-top: 60px;
         }
 
         .act-card {
-            border-radius: 22px;
-            padding: 38px;
+            border-radius: 22px; padding: 38px;
             transition: all 0.4s cubic-bezier(0.23,1,0.32,1);
-            position: relative;
-            overflow: hidden;
+            position: relative; overflow: hidden;
         }
 
-        .act-card::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 22px;
-            opacity: 0;
-            transition: opacity 0.4s;
-            box-shadow: inset 0 0 0 1px rgba(201,168,76,0.4);
-        }
+        .act-card:hover { transform: translateY(-6px); box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
 
-        .act-card:hover::after { opacity: 1; }
+        .act-card.featured { grid-column: span 2; background: linear-gradient(135deg, rgba(217,70,239,0.13) 0%, rgba(217,70,239,0.04) 100%); border: 1px solid rgba(217,70,239,0.22); }
+        .act-card.dark { background: var(--dark-2); border: 1px solid rgba(255,255,255,0.05); }
+        .act-card.dark:hover { border-color: rgba(217,70,239,0.2); }
 
-        .act-card:hover { transform: translateY(-6px); }
+        .act-tag { font-size: 0.68rem; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 14px; }
+        .act-card h3 { font-size: 1.35rem; font-weight: 800; margin-bottom: 12px; line-height: 1.3; }
+        .act-card p { font-size: 0.88rem; color: var(--gray-light); line-height: 1.7; }
 
-        .act-card.featured {
-            grid-column: span 2;
-            background: linear-gradient(135deg, rgba(201,168,76,0.13) 0%, rgba(201,168,76,0.04) 100%);
-            border: 1px solid rgba(201,168,76,0.22);
-        }
-
-        .act-card.dark {
-            background: var(--dark-2);
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .act-card:hover { box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
-
-        .act-tag {
-            font-size: 0.68rem;
-            font-weight: 700;
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
-            color: var(--gold);
-            margin-bottom: 14px;
-        }
-
-        .act-card h3 {
-            font-size: 1.35rem;
-            font-weight: 800;
-            margin-bottom: 12px;
-            line-height: 1.3;
-        }
-
-        .act-card p {
-            font-size: 0.88rem;
-            color: var(--gray-light);
-            line-height: 1.7;
-        }
-
-        .prizes-row {
-            display: flex;
-            gap: 14px;
-            margin-top: 28px;
-        }
+        .prizes-row { display: flex; gap: 14px; margin-top: 28px; }
 
         .prize-box {
-            flex: 1;
-            background: rgba(0,0,0,0.35);
-            border: 1px solid rgba(201,168,76,0.12);
-            border-radius: 12px;
-            padding: 18px 12px;
-            text-align: center;
+            flex: 1; background: rgba(0,0,0,0.35);
+            border: 1px solid rgba(217,70,239,0.12);
+            border-radius: 12px; padding: 18px 12px; text-align: center;
         }
 
-        .prize-box-amount {
-            font-size: 1.15rem;
-            font-weight: 900;
-            color: var(--gold);
-        }
-
-        .prize-box-label {
-            font-size: 0.72rem;
-            color: var(--gray);
-            margin-top: 5px;
-        }
+        .prize-box-amount { font-size: 1.15rem; font-weight: 900; color: var(--gold); }
+        .prize-box-label { font-size: 0.72rem; color: var(--gray); margin-top: 5px; }
 
         /* =========================================
-           PROGRAM
+           PAGE PROGRAMME
         ========================================= */
-        #program { background: var(--dark); }
+        #page-program { background: transparent; }
 
         .schedule-wrap {
-            margin-top: 60px;
-            border-radius: 20px;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.07);
+            margin-top: 48px; border-radius: 20px;
+            overflow: hidden; border: 1px solid rgba(255,255,255,0.07);
         }
 
         .sch-row {
-            display: grid;
-            grid-template-columns: 190px 1fr 1fr;
+            display: grid; grid-template-columns: 190px 1fr 1fr;
             border-bottom: 1px solid rgba(255,255,255,0.04);
             transition: background 0.2s;
         }
 
         .sch-row:last-child { border-bottom: none; }
-        .sch-row:not(.sch-header):hover { background: rgba(201,168,76,0.03); }
+        .sch-row:not(.sch-header):hover { background: rgba(217,70,239,0.03); }
+        .sch-header { background: rgba(217,70,239,0.07); }
 
-        .sch-header {
-            background: rgba(201,168,76,0.07);
-        }
-
-        .sch-cell {
-            padding: 20px 28px;
-            font-size: 0.875rem;
-            border-right: 1px solid rgba(255,255,255,0.04);
-            display: flex;
-            align-items: center;
-        }
-
+        .sch-cell { padding: 20px 28px; font-size: 0.875rem; border-right: 1px solid rgba(255,255,255,0.04); display: flex; align-items: center; }
         .sch-cell:last-child { border-right: none; }
         .sch-header .sch-cell { font-size: 0.72rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); }
         .sch-time { font-weight: 700; color: var(--gold); font-size: 0.83rem; }
@@ -813,563 +586,778 @@
         .sch-highlight { color: var(--gold) !important; font-weight: 800 !important; }
 
         /* =========================================
-           COMPETITION
+           PAGE SPONSORING
         ========================================= */
-        #competition { background: var(--black); }
+        #page-sponsoring { background: var(--dark); }
 
-        .comp-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 80px;
-            align-items: start;
-        }
-
-        .comp-desc p {
-            font-size: 0.95rem;
-            color: var(--gray-light);
-            line-height: 1.85;
-            margin-bottom: 16px;
-        }
-
-        .criteria-list {
-            list-style: none;
-            margin-top: 32px;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .criteria-list li {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 14px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            font-size: 0.9rem;
-            color: var(--gray-light);
-        }
-
-        .criteria-list li:last-child { border-bottom: none; }
-
-        .crit-dot {
-            width: 8px; height: 8px;
-            background: var(--gold);
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
-        .prize-cards {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .prize-card {
-            background: var(--dark-2);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 14px;
-            padding: 24px 28px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: all 0.3s;
-        }
-
-        .prize-card:hover {
-            transform: translateX(8px);
-            border-color: rgba(201,168,76,0.3);
-        }
-
-        .prize-card.p1 {
-            background: linear-gradient(135deg, rgba(201,168,76,0.1) 0%, rgba(201,168,76,0.03) 100%);
-            border-color: rgba(201,168,76,0.28);
-        }
-
-        .prize-rank { font-size: 0.85rem; color: var(--gray); font-weight: 600; }
-        .prize-amount { font-size: 1.7rem; font-weight: 900; color: var(--gold); }
-
-        .prize-total {
-            margin-top: 20px;
-            background: var(--dark-3);
-            border-radius: 12px;
-            padding: 20px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .prize-total-label { font-size: 0.82rem; color: var(--gray); }
-        .prize-total-amount { font-size: 1.4rem; font-weight: 900; color: var(--gold); }
-
-        /* =========================================
-           RESULTS
-        ========================================= */
-        #results { background: var(--dark); }
-
-        .results-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 48px;
-            margin-top: 60px;
-            align-items: start;
-        }
-
-        .result-numbers {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .result-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 22px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-        }
-
-        .result-item:last-child { border-bottom: none; }
-
-        .result-label {
-            font-size: 0.9rem;
-            color: var(--gray-light);
-        }
-
-        .result-value {
-            font-size: 2rem;
-            font-weight: 900;
-            color: var(--gold);
-            letter-spacing: -1px;
-        }
-
-        .result-qualitative {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .qual-item {
-            background: var(--dark-2);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 14px;
-            padding: 22px 24px;
-            display: flex;
-            gap: 16px;
-            align-items: flex-start;
-            transition: all 0.3s;
-        }
-
-        .qual-item:hover {
-            border-color: rgba(201,168,76,0.2);
-            background: rgba(201,168,76,0.04);
-        }
-
-        .qual-icon { font-size: 1.3rem; flex-shrink: 0; }
-
-        .qual-item h4 {
-            font-size: 0.9rem;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .qual-item p {
-            font-size: 0.82rem;
-            color: var(--gray);
-            line-height: 1.55;
-        }
-
-        /* =========================================
-           SPONSORING
-        ========================================= */
-        #sponsoring { background: var(--black); }
-
-        .sponsor-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 22px;
-            margin-top: 60px;
-        }
+        .sponsor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
 
         .sponsor-card {
-            border-radius: 22px;
-            padding: 40px;
-            position: relative;
-            overflow: hidden;
+            border-radius: 22px; padding: 40px;
+            position: relative; overflow: hidden;
             transition: all 0.4s cubic-bezier(0.23,1,0.32,1);
         }
 
         .sponsor-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 3px;
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
             border-radius: 22px 22px 0 0;
         }
 
-        .sponsor-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 40px 100px rgba(0,0,0,0.7);
-        }
+        .sponsor-card:hover { transform: translateY(-8px); box-shadow: 0 40px 100px rgba(0,0,0,0.7); }
 
-        .sponsor-card.platinum {
-            background: linear-gradient(145deg, rgba(201,168,76,0.14) 0%, rgba(201,168,76,0.04) 100%);
-            border: 1px solid rgba(201,168,76,0.28);
-        }
-
+        .sponsor-card.platinum { background: linear-gradient(145deg, rgba(217,70,239,0.14) 0%, rgba(217,70,239,0.04) 100%); border: 1px solid rgba(217,70,239,0.28); }
         .sponsor-card.platinum::before { background: var(--gold); }
-
-        .sponsor-card.gold-tier {
-            background: var(--dark-2);
-            border: 1px solid rgba(201,168,76,0.14);
-        }
-
+        .sponsor-card.gold-tier { background: var(--dark-2); border: 1px solid rgba(217,70,239,0.14); }
         .sponsor-card.gold-tier::before { background: linear-gradient(90deg, var(--gold-dark), var(--gold)); }
-
-        .sponsor-card.silver {
-            background: var(--dark-2);
-            border: 1px solid rgba(255,255,255,0.07);
-        }
-
+        .sponsor-card.silver { background: var(--dark-2); border: 1px solid rgba(255,255,255,0.07); }
         .sponsor-card.silver::before { background: #9ca3af; }
-
-        .sponsor-card.technical {
-            background: var(--dark-2);
-            border: 1px solid rgba(255,255,255,0.07);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
+        .sponsor-card.technical { background: var(--dark-2); border: 1px solid rgba(255,255,255,0.07); }
         .sponsor-card.technical::before { background: #4b5563; }
 
-        .tier-name {
-            font-size: 1.5rem;
-            font-weight: 900;
-            margin-bottom: 6px;
-        }
-
-        .tier-price {
-            font-size: 2.2rem;
-            font-weight: 900;
-            color: var(--gold);
-            margin-bottom: 28px;
-            letter-spacing: -1px;
-        }
-
-        .tier-features {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .tier-features li {
-            display: flex;
-            gap: 12px;
-            font-size: 0.875rem;
-            color: var(--gray-light);
-            line-height: 1.5;
-        }
-
+        .tier-name { font-size: 1.5rem; font-weight: 900; margin-bottom: 6px; }
+        .tier-price { font-size: 2.2rem; font-weight: 900; color: var(--gold); margin-bottom: 28px; letter-spacing: -1px; }
+        .tier-features { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+        .tier-features li { display: flex; gap: 12px; font-size: 0.875rem; color: var(--gray-light); line-height: 1.5; }
         .tier-check { color: var(--gold); font-weight: 700; flex-shrink: 0; }
 
         /* =========================================
-           ORGANIZERS
+           PAGE ORGANISATEURS
         ========================================= */
-        #organizers { background: var(--dark); }
+        #page-organizers { background: transparent; }
 
-        .org-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-            margin-top: 60px;
-        }
+        .org-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
 
         .org-card {
             background: var(--dark-2);
             border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 20px;
-            padding: 36px;
+            border-radius: 20px; padding: 36px;
             transition: all 0.3s;
         }
 
-        .org-card:hover {
-            border-color: rgba(201,168,76,0.18);
-            transform: translateY(-4px);
-            box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+        .org-card:hover { border-color: rgba(217,70,239,0.18); transform: translateY(-4px); box-shadow: 0 24px 60px rgba(0,0,0,0.5); }
+        .org-name { font-size: 1.2rem; font-weight: 900; color: var(--gold); letter-spacing: 1px; margin-bottom: 4px; }
+        .org-type { font-size: 0.78rem; color: var(--gray); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 18px; }
+        .org-desc { font-size: 0.875rem; color: var(--gray-light); line-height: 1.7; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .org-contact-name { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }
+        .org-contact-role { font-size: 0.78rem; color: var(--gray); margin-bottom: 8px; }
+        .org-contact-info { font-size: 0.82rem; color: var(--gold); }
+
+
+        /* =========================================
+           COMPÉTITION (dans activités)
+        ========================================= */
+        .comp-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+
+        .criteria-list { list-style: none; margin-top: 32px; display: flex; flex-direction: column; gap: 2px; }
+        .criteria-list li { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.9rem; color: var(--gray-light); }
+        .criteria-list li:last-child { border-bottom: none; }
+        .crit-dot { width: 8px; height: 8px; background: var(--gold); border-radius: 50%; flex-shrink: 0; }
+
+        .prize-cards { display: flex; flex-direction: column; gap: 14px; }
+
+        .prize-card { background: var(--dark-2); border: 1px solid rgba(255,255,255,0.05); border-radius: 14px; padding: 24px 28px; display: flex; align-items: center; justify-content: space-between; transition: all 0.3s; }
+        .prize-card:hover { transform: translateX(8px); border-color: rgba(217,70,239,0.3); }
+        .prize-card.p1 { background: linear-gradient(135deg, rgba(217,70,239,0.1) 0%, rgba(217,70,239,0.03) 100%); border-color: rgba(217,70,239,0.28); }
+
+        .prize-rank { font-size: 0.85rem; color: var(--gray); font-weight: 600; }
+        .prize-amount { font-size: 1.7rem; font-weight: 900; color: var(--gold); }
+
+        .prize-total { margin-top: 20px; background: var(--dark-3); border-radius: 12px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
+        .prize-total-label { font-size: 0.82rem; color: var(--gray); }
+        .prize-total-amount { font-size: 1.4rem; font-weight: 900; color: var(--gold); }
+
+        /* =========================================
+           PAGE INSCRIPTION — style vibeathonci.com
+        ========================================= */
+        #page-inscription {
+            background: radial-gradient(ellipse at 20% 60%, rgba(13,148,136,0.3) 0%, #050d1f 40%, #020810 100%),
+                        radial-gradient(ellipse at 80% 30%, rgba(217,70,239,0.2) 0%, transparent 50%);
+            min-height: 100vh;
         }
 
-        .org-name {
-            font-size: 1.2rem;
+        #page-inscription.active {
+            display: flex !important;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .insc-scene {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            padding: 40px 60px;
+            min-height: calc(100vh - 120px);
+        }
+
+        /* Lampe */
+        .insc-lamp {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 380px;
+            animation: lamp-float 4s ease-in-out infinite;
+        }
+
+        .insc-lamp svg {
+            width: 100%;
+            max-width: 280px;
+            filter: drop-shadow(0 0 40px rgba(217,70,239,0.5)) drop-shadow(0 0 80px rgba(217,70,239,0.2));
+        }
+
+        @keyframes lamp-float {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-12px); }
+        }
+
+        /* Carte formulaire */
+        .insc-card {
+            flex: 1;
+            max-width: 480px;
+            background: rgba(20, 16, 8, 0.82);
+            border: 1px solid rgba(217,70,239,0.12);
+            border-radius: 24px;
+            padding: 44px 40px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 32px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.04);
+        }
+
+        .insc-title {
+            font-size: 2rem;
             font-weight: 900;
-            color: var(--gold);
-            letter-spacing: 1px;
-            margin-bottom: 4px;
+            letter-spacing: 4px;
+            color: var(--white);
+            margin-bottom: 6px;
         }
 
-        .org-type {
-            font-size: 0.78rem;
-            color: var(--gray);
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-bottom: 18px;
+        .insc-dot {
+            width: 8px; height: 8px;
+            background: var(--gold);
+            border-radius: 50%;
+            margin-bottom: 32px;
+            box-shadow: 0 0 12px rgba(217,70,239,0.8);
         }
 
-        .org-desc {
-            font-size: 0.875rem;
-            color: var(--gray-light);
-            line-height: 1.7;
-            margin-bottom: 24px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
+        /* Formulaire */
+        .insc-form { display: flex; flex-direction: column; gap: 20px; }
 
-        .org-contact-name {
+        .insc-field { display: flex; flex-direction: column; gap: 7px; flex: 1; }
+
+        .insc-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        .insc-label {
+            font-size: 0.68rem;
             font-weight: 700;
-            font-size: 0.9rem;
-            margin-bottom: 2px;
-        }
-
-        .org-contact-role {
-            font-size: 0.78rem;
+            letter-spacing: 2px;
             color: var(--gray);
-            margin-bottom: 8px;
+            text-transform: uppercase;
         }
 
-        .org-contact-info {
-            font-size: 0.82rem;
+        .insc-input {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: var(--white);
+            font-size: 0.9rem;
+            font-family: inherit;
+            transition: border-color 0.2s, background 0.2s;
+            width: 100%;
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .insc-input::placeholder { color: rgba(255,255,255,0.22); }
+
+        .insc-input:focus {
+            border-color: rgba(217,70,239,0.45);
+            background: rgba(255,255,255,0.07);
+        }
+
+        .insc-select {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23C9A84C' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 40px;
+        }
+
+        .insc-select option { background: #080f24; color: var(--white); }
+
+        .insc-tarif {
+            display: flex;
+            align-items: center;
+            font-weight: 800;
+            font-size: 1rem;
             color: var(--gold);
+            cursor: default;
+            letter-spacing: 0.5px;
+        }
+
+        /* Bouton */
+        .insc-btn {
+            background: var(--gold);
+            color: var(--black);
+            border: none;
+            border-radius: 12px;
+            padding: 18px 24px;
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s cubic-bezier(0.23,1,0.32,1);
+            margin-top: 4px;
+            width: 100%;
+        }
+
+        .insc-btn:hover {
+            background: var(--gold-light);
+            transform: translateY(-2px);
+            box-shadow: 0 16px 48px rgba(217,70,239,0.45);
+        }
+
+        .insc-btn:active { transform: translateY(0); }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .insc-scene { flex-direction: column; padding: 32px 24px; gap: 32px; }
+            .insc-lamp { max-width: 200px; }
+            .insc-lamp svg { max-width: 160px; }
+            .insc-card { max-width: 100%; width: 100%; padding: 32px 24px; }
+        }
+
+        @media (max-width: 480px) {
+            .insc-row { grid-template-columns: 1fr; }
         }
 
         /* =========================================
-           CTA
+           PRICING CARDS (page inscription)
         ========================================= */
-        #cta {
-            background: var(--black);
-            text-align: center;
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            align-items: start;
+        }
+
+        .pricing-card {
+            background: var(--dark-2);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 20px;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            transition: all 0.35s cubic-bezier(0.23,1,0.32,1);
             position: relative;
-            overflow: hidden;
         }
 
-        #cta::before {
-            content: '';
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%,-50%);
-            width: 700px; height: 700px;
-            background: radial-gradient(circle, rgba(201,168,76,0.07) 0%, transparent 65%);
-            pointer-events: none;
+        .pricing-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+            border-color: rgba(217,70,239,0.2);
         }
 
-        .cta-title {
-            font-size: clamp(2.5rem, 5.5vw, 4.5rem);
+        .pricing-card.featured {
+            background: linear-gradient(160deg, rgba(217,70,239,0.13) 0%, rgba(217,70,239,0.04) 100%);
+            border: 1px solid rgba(217,70,239,0.35);
+            box-shadow: 0 0 0 1px rgba(217,70,239,0.12), 0 24px 60px rgba(0,0,0,0.5);
+        }
+
+        .pricing-card.featured:hover {
+            border-color: rgba(217,70,239,0.55);
+            box-shadow: 0 40px 100px rgba(0,0,0,0.7), 0 0 60px rgba(217,70,239,0.08);
+        }
+
+        .pc-top { margin-bottom: 24px; }
+
+        .pc-badge-wrap { margin-bottom: 16px; }
+
+        .pc-badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 5px 12px;
+            border-radius: 100px;
+        }
+
+        .pc-badge.free    { background: rgba(255,255,255,0.07); color: var(--gray-light); border: 1px solid rgba(255,255,255,0.1); }
+        .pc-badge.popular { background: rgba(217,70,239,0.18); color: var(--gold); border: 1px solid rgba(217,70,239,0.35); }
+        .pc-badge.partner { background: rgba(255,255,255,0.07); color: var(--gray-light); border: 1px solid rgba(255,255,255,0.1); }
+
+        .pc-name {
+            font-size: 1.3rem;
+            font-weight: 900;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .featured .pc-name { color: var(--gold); }
+
+        .pc-price {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .pc-amount {
+            font-size: 2.8rem;
             font-weight: 900;
             letter-spacing: -2px;
-            line-height: 1.05;
-            margin-bottom: 20px;
+            line-height: 1;
         }
 
-        .cta-subtitle {
-            font-size: 1.05rem;
+        .featured .pc-amount { color: var(--gold); }
+
+        .pc-currency {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray);
+        }
+
+        .pc-desc {
+            font-size: 0.875rem;
+            color: var(--gray);
+            line-height: 1.65;
+        }
+
+        /* Boutons */
+        .pc-btn {
+            display: block;
+            text-align: center;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: all 0.25s;
+            margin-bottom: 28px;
+            cursor: pointer;
+        }
+
+        .pc-btn-outline {
+            border: 1px solid rgba(255,255,255,0.18);
+            color: var(--white);
+            background: transparent;
+        }
+
+        .pc-btn-outline:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(217,70,239,0.05);
+        }
+
+        .pc-btn-gold {
+            background: var(--gold);
+            color: var(--black);
+            border: 1px solid var(--gold);
+        }
+
+        .pc-btn-gold:hover {
+            background: var(--gold-light);
+            box-shadow: 0 12px 40px rgba(217,70,239,0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Divider */
+        .pc-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.06);
+            margin-bottom: 24px;
+        }
+
+        .featured .pc-divider { background: rgba(217,70,239,0.15); }
+
+        /* Features */
+        .pc-features {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .pc-features li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.875rem;
             color: var(--gray-light);
-            max-width: 520px;
-            margin: 0 auto 44px;
+            line-height: 1.45;
+        }
+
+        .pc-check {
+            font-weight: 700;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+
+        .pc-check.gold  { color: var(--gold); }
+        .pc-check.gray  { color: var(--gray); }
+        .pc-check:not(.gold):not(.gray) { color: #6ee7b7; }
+
+        /* Prize band */
+        .pc-prize-band {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(217,70,239,0.15);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 24px;
+        }
+
+        .pc-prize-item { text-align: center; flex: 1; }
+        .pc-prize-amount { font-size: 1.2rem; font-weight: 900; color: var(--gold); }
+        .pc-prize-label  { font-size: 0.7rem; color: var(--gray); margin-top: 3px; }
+        .pc-prize-sep    { width: 1px; height: 36px; background: rgba(255,255,255,0.06); }
+
+        /* FAQ */
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin-bottom: 0;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .faq-q {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 22px 0;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--white);
+            transition: color 0.2s;
+            gap: 16px;
+            user-select: none;
+        }
+
+        .faq-q:hover { color: var(--gold); }
+
+        .faq-icon {
+            font-size: 1.4rem;
+            color: var(--gold);
+            flex-shrink: 0;
+            transition: transform 0.3s;
+            font-weight: 300;
+            line-height: 1;
+        }
+
+        .faq-item.open .faq-icon { transform: rotate(45deg); }
+
+        .faq-a {
+            display: none;
+            padding: 0 0 22px;
+            font-size: 0.875rem;
+            color: var(--gray-light);
             line-height: 1.75;
         }
 
-        .cta-meta {
-            display: flex;
-            gap: 60px;
-            justify-content: center;
-            margin-top: 60px;
-            flex-wrap: wrap;
+        .faq-item.open .faq-a { display: block; }
+
+        /* Responsive pricing */
+        @media (max-width: 960px) {
+            .pricing-cards { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
         }
 
-        .cta-meta-item { text-align: center; }
-
-        .cta-meta-label {
-            font-size: 0.72rem;
-            color: var(--gray);
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
-            margin-bottom: 8px;
+        @media (max-width: 768px) {
+            .pricing-cards { padding: 0; }
+            #page-inscription .page-inner { padding: 48px 24px; }
         }
 
-        .cta-meta-value {
-            font-size: 1.05rem;
+        /* =========================================
+           PASS CARDS — sélection du pass
+        ========================================= */
+        .pass-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .pass-card {
+            border: 1.5px solid rgba(217,70,239,0.22);
+            border-radius: 13px;
+            padding: 14px 10px 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: border-color 0.22s, background 0.22s, transform 0.15s;
+            background: rgba(255,255,255,0.02);
+            position: relative;
+        }
+        .pass-card:hover:not(.pass-card-off) {
+            border-color: rgba(217,70,239,0.5);
+            transform: translateY(-2px);
+        }
+        .pass-card.selected {
+            border-color: var(--gold);
+            background: rgba(217,70,239,0.11);
+        }
+        .pass-card-off {
+            opacity: 0.35;
+            cursor: not-allowed;
+            filter: grayscale(1);
+        }
+        .pass-card-full {
+            opacity: 0.45;
+            cursor: not-allowed;
+            filter: grayscale(0.7);
+        }
+
+        .pass-card-name {
+            font-size: 0.75rem;
             font-weight: 700;
+            letter-spacing: 0.04em;
+            color: var(--white);
+            margin: 6px 0 4px;
+        }
+        .pass-card-price {
+            font-size: 0.88rem;
+            font-weight: 800;
             color: var(--gold);
         }
+
+        .pass-tag {
+            display: inline-block;
+            font-size: 0.6rem;
+            letter-spacing: 0.05em;
+            border-radius: 20px;
+            padding: 2px 8px;
+            font-weight: 600;
+        }
+        .pass-tag-off {
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.35);
+        }
+        .pass-tag-spots {
+            background: rgba(217,70,239,0.18);
+            color: var(--gold);
+        }
+        .pass-tag-full {
+            background: rgba(239,68,68,0.15);
+            color: #f87171;
+        }
+
+        @media (max-width: 500px) {
+            .pass-cards { grid-template-columns: 1fr; gap: 8px; }
+        }
+
+        /* =========================================
+           PAIEMENT — étape 2
+        ========================================= */
+        .pay-recap {
+            color: rgba(255,255,255,0.65);
+            font-size: 0.88rem;
+            text-align: center;
+            margin-bottom: 22px;
+            line-height: 1.6;
+        }
+        .pay-recap strong { color: var(--gold); }
+
+        .pay-methods {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .pay-method-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 10px;
+            border: 1.5px solid rgba(217,70,239,0.22);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: border-color 0.25s, background 0.25s;
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.7);
+            background: rgba(255,255,255,0.03);
+            user-select: none;
+        }
+        .pay-method-card input[type="radio"] { display: none; }
+        .pay-method-card.selected {
+            border-color: var(--gold);
+            background: rgba(217,70,239,0.13);
+            color: var(--white);
+        }
+        .pay-method-icon { font-size: 1.9rem; line-height: 1; }
+
+        .pay-badge {
+            font-size: 0.68rem;
+            background: rgba(59,130,246,0.2);
+            color: #60a5fa;
+            border: 1px solid rgba(59,130,246,0.4);
+            border-radius: 20px;
+            padding: 2px 8px;
+            letter-spacing: 0.04em;
+        }
+
+        .pay-ref-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(217,70,239,0.07);
+            border: 1.5px solid rgba(217,70,239,0.35);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+        }
+        .pay-ref-label {
+            font-size: 0.68rem;
+            letter-spacing: 0.1em;
+            color: rgba(255,255,255,0.45);
+            flex-shrink: 0;
+        }
+        .pay-ref-code {
+            flex: 1;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: 0.18em;
+            color: var(--gold);
+        }
+        .pay-ref-copy {
+            background: none;
+            border: 1px solid rgba(217,70,239,0.35);
+            color: var(--gold);
+            border-radius: 7px;
+            padding: 4px 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .pay-ref-copy:hover { background: rgba(217,70,239,0.15); }
+
+        .wave-info-box {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: rgba(59,130,246,0.08);
+            border: 1px solid rgba(59,130,246,0.25);
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 0.83rem;
+            color: rgba(255,255,255,0.75);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        .wave-info-box strong { color: var(--gold); }
+        .wave-info-box em { color: rgba(255,255,255,0.9); font-style: normal; font-weight: 600; }
+
+        .insc-back-btn {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.35);
+            font-size: 0.83rem;
+            cursor: pointer;
+            margin-top: 14px;
+            display: block;
+            text-align: center;
+            width: 100%;
+            transition: color 0.2s;
+            letter-spacing: 0.05em;
+        }
+        .insc-back-btn:hover { color: var(--gold); }
 
         /* =========================================
            FOOTER
         ========================================= */
         footer {
-            background: var(--black);
+            background: rgba(2,8,16,0.5);
             border-top: 1px solid rgba(255,255,255,0.05);
-            padding: 64px 64px 40px;
+            padding: 40px 64px;
         }
-
-        .footer-grid {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            gap: 64px;
-            padding-bottom: 44px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-        }
-
-        .footer-logo {
-            font-size: 1.4rem;
-            font-weight: 900;
-            color: var(--gold);
-            letter-spacing: 2px;
-            margin-bottom: 16px;
-        }
-
-        .footer-desc {
-            font-size: 0.85rem;
-            color: var(--gray);
-            line-height: 1.75;
-            max-width: 280px;
-            margin-bottom: 24px;
-        }
-
-        .footer-socials {
-            display: flex;
-            gap: 12px;
-        }
-
-        .social-btn {
-            width: 36px; height: 36px;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--gray);
-            text-decoration: none;
-            font-size: 0.85rem;
-            font-weight: 700;
-            transition: all 0.2s;
-        }
-
-        .social-btn:hover {
-            background: rgba(201,168,76,0.15);
-            border-color: rgba(201,168,76,0.3);
-            color: var(--gold);
-        }
-
-        .footer-col h4 {
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
-            color: var(--gold);
-            margin-bottom: 20px;
-        }
-
-        .footer-links {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .footer-links a {
-            color: var(--gray);
-            text-decoration: none;
-            font-size: 0.875rem;
-            transition: color 0.2s;
-        }
-
-        .footer-links a:hover { color: var(--gold); }
 
         .footer-bottom {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding-top: 28px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.78rem;
-            color: var(--gray);
-            flex-wrap: wrap;
-            gap: 12px;
+            max-width: 1200px; margin: 0 auto;
+            display: flex; justify-content: space-between;
+            align-items: center; font-size: 0.78rem; color: var(--gray);
+            flex-wrap: wrap; gap: 12px;
         }
+
+        .footer-logo { font-size: 1.2rem; font-weight: 900; color: var(--gold); letter-spacing: 2px; }
 
         /* =========================================
            ANIMATIONS
         ========================================= */
-        .reveal {
-            opacity: 0;
-            transform: translateY(28px);
-            transition: opacity 0.75s ease, transform 0.75s ease;
-        }
-
+        .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.65s ease, transform 0.65s ease; }
         .reveal.d1 { transition-delay: 0.08s; }
         .reveal.d2 { transition-delay: 0.16s; }
         .reveal.d3 { transition-delay: 0.24s; }
         .reveal.d4 { transition-delay: 0.32s; }
-        .reveal.d5 { transition-delay: 0.40s; }
-
         .reveal.visible { opacity: 1; transform: translateY(0); }
 
         /* =========================================
            RESPONSIVE
         ========================================= */
         @media (max-width: 1024px) {
-            .objectives-grid { grid-template-columns: repeat(2,1fr); }
             .org-grid { grid-template-columns: 1fr 1fr; }
         }
 
         @media (max-width: 768px) {
-            nav { padding: 16px 24px; }
-            nav.scrolled { padding: 12px 24px; }
+            nav { padding: 14px 20px; }
             .nav-links { display: none; }
             .hamburger { display: flex; }
-            section { padding: 88px 24px; }
+            .page-inner { padding: 48px 24px; }
+            .stats-band { padding: 40px 24px; }
+            .stats-grid { grid-template-columns: repeat(2,1fr); gap: 24px; }
+            .stats-grid > div:last-child { grid-column: span 2; }
             .hero-content { padding: 0 24px; }
-            .stats-band { padding: 44px 24px; }
-            .stats-grid { grid-template-columns: repeat(2,1fr); gap: 28px; }
-            .stats-grid .stat-item:last-child { grid-column: span 2; }
             .about-grid { grid-template-columns: 1fr; gap: 48px; }
             .context-layout { grid-template-columns: 1fr; }
             .solutions-box { position: relative; top: 0; }
-            .objectives-grid { grid-template-columns: 1fr; }
             .activities-grid { grid-template-columns: 1fr; }
             .act-card.featured { grid-column: span 1; }
-            .sch-row { grid-template-columns: 120px 1fr; }
+            .prizes-row { flex-direction: column; }
+            .sch-row { grid-template-columns: 110px 1fr; }
             .sch-cell:nth-child(3):not(.sch-span) { display: none; }
-            .comp-layout { grid-template-columns: 1fr; gap: 48px; }
-            .results-grid { grid-template-columns: 1fr; }
+            .comp-layout { grid-template-columns: 1fr; gap: 40px; }
             .sponsor-grid { grid-template-columns: 1fr; }
             .org-grid { grid-template-columns: 1fr; }
-            .footer-grid { grid-template-columns: 1fr; gap: 36px; }
-            .footer-bottom { flex-direction: column; text-align: center; }
-            .hero-actions { flex-direction: column; align-items: flex-start; }
+            .inscription-wrap { padding: 48px 24px; }
+            .cta-meta { gap: 28px; }
             .hero-meta { flex-direction: column; gap: 14px; }
-            .cta-meta { gap: 36px; }
-            .prizes-row { flex-direction: column; }
+            .hero-actions { flex-direction: column; align-items: flex-start; }
+            footer { padding: 32px 24px; }
         }
     </style>
 </head>
 <body>
 
+<!-- Canvas Three.js — fond global fixe, toutes les pages -->
+<canvas id="hero-canvas"></canvas>
+
 <!-- ===== NAVBAR ===== -->
 <nav id="navbar">
-    <a href="#hero" class="nav-logo">VIBEATHON</a>
+    <span class="nav-logo" onclick="showPage('accueil')">VIBEATHON</span>
     <ul class="nav-links">
-        <li><a href="#about">À propos</a></li>
-        <li><a href="#context">Contexte</a></li>
-        <li><a href="#activities">Activités</a></li>
-        <li><a href="#program">Programme</a></li>
-        <li><a href="#sponsoring">Sponsoring</a></li>
-        <li><a href="#organizers">Organisateurs</a></li>
-        <li><a href="#cta" class="nav-cta">S'inscrire</a></li>
+        <li><button onclick="showPage('accueil')"    id="tab-accueil"    class="active">Accueil</button></li>
+        <li><button onclick="showPage('about')"      id="tab-about">À propos</button></li>
+        <li><button onclick="showPage('context')"    id="tab-context">Contexte</button></li>
+        <li><button onclick="showPage('activities')" id="tab-activities">Activités</button></li>
+        <li><button onclick="showPage('program')"    id="tab-program">Programme</button></li>
+        <li><button onclick="showPage('organizers')" id="tab-organizers">Organisateurs</button></li>
+        <li><button onclick="showPage('inscription')" id="tab-inscription" class="nav-cta">S'inscrire</button></li>
     </ul>
     <button class="hamburger" onclick="openMenu()" aria-label="Menu">
         <span></span><span></span><span></span>
@@ -1379,83 +1367,71 @@
 <!-- Mobile Menu -->
 <div id="mobile-menu">
     <button class="menu-close" onclick="closeMenu()">✕</button>
-    <a href="#about" onclick="closeMenu()">À propos</a>
-    <a href="#context" onclick="closeMenu()">Contexte</a>
-    <a href="#activities" onclick="closeMenu()">Activités</a>
-    <a href="#program" onclick="closeMenu()">Programme</a>
-    <a href="#sponsoring" onclick="closeMenu()">Sponsoring</a>
-    <a href="#organizers" onclick="closeMenu()">Organisateurs</a>
-    <a href="#cta" onclick="closeMenu()">S'inscrire maintenant</a>
+    <button onclick="showPage('accueil');closeMenu()">Accueil</button>
+    <button onclick="showPage('about');closeMenu()">À propos</button>
+    <button onclick="showPage('context');closeMenu()">Contexte</button>
+    <button onclick="showPage('activities');closeMenu()">Activités</button>
+    <button onclick="showPage('program');closeMenu()">Programme</button>
+    <button onclick="showPage('organizers');closeMenu()">Organisateurs</button>
+    <button class="mob-cta" onclick="showPage('inscription');closeMenu()">S'inscrire</button>
 </div>
 
-<!-- ===== HERO ===== -->
-<section id="hero">
-    <canvas id="hero-canvas"></canvas>
-    <div class="hero-overlay"></div>
-    <div class="hero-content">
-        <div class="hero-badge">
-            <div class="badge-dot"></div>
-            11 Juillet 2026 &nbsp;·&nbsp; CSCTICAO, Côte d'Ivoire
-        </div>
-        <h1 class="hero-title">
-            Pense.<br>
-            <span class="gold">Crée.</span><br>
-            Lance.
-        </h1>
-        <p class="hero-subtitle">
-            Démocratiser l'IA et révèler une nouvelle génération de créateurs capables de transformer leurs idées en solutions concrètes — sans coder.
-        </p>
-        <div class="hero-meta">
-            <div class="hero-meta-item">
-                <span class="icon">◷</span> Une journée complète
-            </div>
-            <div class="hero-meta-item">
-                <span class="icon">◈</span> 300 participants
-            </div>
-            <div class="hero-meta-item">
-                <span class="icon">◉</span> Abidjan, Côte d'Ivoire
-            </div>
-        </div>
-        <div class="hero-actions">
-            <a href="#cta" class="btn-primary">S'inscrire maintenant</a>
-            <a href="#about" class="btn-secondary">En savoir plus</a>
-        </div>
-    </div>
-    <div class="hero-scroll-hint">
-        <span>Scroll</span>
-        <span>↓</span>
-    </div>
-</section>
 
-<!-- ===== STATS ===== -->
-<div class="stats-band">
-    <div class="stats-grid">
-        <div class="reveal">
-            <span class="stat-number" data-target="300">0</span>
-            <span class="stat-label">Participants mobilisés</span>
-        </div>
-        <div class="reveal d1">
-            <span class="stat-number" data-target="100">0</span>
-            <span class="stat-label">Compétiteurs formés</span>
-        </div>
-        <div class="reveal d2">
-            <span class="stat-number" data-target="20">0</span>
-            <span class="stat-label">Solutions développées</span>
-        </div>
-        <div class="reveal d3">
-            <span class="stat-number" data-target="3">0</span>
-            <span class="stat-label">Projets primés</span>
-        </div>
-        <div class="reveal d4">
-            <span class="stat-number" data-target="200" data-suffix="+">0</span>
-            <span class="stat-label">Personnes sensibilisées</span>
+<!-- ============================================================
+     PAGE : ACCUEIL
+============================================================ -->
+<div class="page active" id="page-accueil">
+    <div id="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-badge">
+                <div class="badge-dot"></div>
+                11 Juillet 2026 &nbsp;·&nbsp; CSCTICAO, Côte d'Ivoire
+            </div>
+            <h1 class="hero-title">
+                Pense.<br>
+                <span class="gold">Crée.</span><br>
+                Lance.
+            </h1>
+            <p class="hero-subtitle">
+                Démocratiser l'IA et révèler une nouvelle génération de créateurs capables de transformer leurs idées en solutions concrètes — sans coder.
+            </p>
+            <div class="hero-meta">
+                <div class="hero-meta-item"><span class="icon">◷</span> Une journée complète</div>
+                <div class="hero-meta-item"><span class="icon">◈</span> 300 participants</div>
+                <div class="hero-meta-item"><span class="icon">◉</span> Abidjan, Côte d'Ivoire</div>
+            </div>
+            <div class="hero-actions">
+                <button class="btn-primary" onclick="showPage('inscription')">S'inscrire maintenant</button>
+                <button class="btn-secondary" onclick="showPage('about')">En savoir plus</button>
+            </div>
         </div>
     </div>
+
+    <div class="stats-band">
+        <div class="stats-grid">
+            <div class="reveal"><span class="stat-number" data-target="300">0</span><span class="stat-label">Participants mobilisés</span></div>
+            <div class="reveal d1"><span class="stat-number" data-target="100">0</span><span class="stat-label">Compétiteurs formés</span></div>
+            <div class="reveal d2"><span class="stat-number" data-target="20">0</span><span class="stat-label">Solutions développées</span></div>
+            <div class="reveal d3"><span class="stat-number" data-target="3">0</span><span class="stat-label">Projets primés</span></div>
+            <div class="reveal d4"><span class="stat-number" data-target="200" data-suffix="+">0</span><span class="stat-label">Personnes sensibilisées</span></div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-bottom">
+            <span class="footer-logo">VIBEATHON 2026</span>
+            <span>© 2026 Vibeathon Côte d'Ivoire. Organisé par CREATIV'O · CREATIVX · RIT-AFRICA</span>
+        </div>
+    </footer>
 </div>
 
-<!-- ===== ABOUT ===== -->
-<section id="about">
-    <div class="container">
+
+<!-- ============================================================
+     PAGE : À PROPOS
+============================================================ -->
+<div class="page" id="page-about">
+    <div class="page-inner">
         <div class="about-grid">
             <div class="about-text">
                 <p class="section-tag reveal">À propos</p>
@@ -1470,29 +1446,34 @@
                 <p class="reveal d2">
                     Au-delà de la compétition, l'événement propose des <strong>keynotes inspirantes</strong>, des <strong>panels d'échanges</strong> avec des experts et des <strong>formations pratiques</strong> sur l'intelligence artificielle.
                 </p>
+                <div style="margin-top:40px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;" class="reveal d3">
+                    <div style="background:var(--dark-2);border:1px solid rgba(217,70,239,0.12);border-radius:14px;padding:24px;text-align:center;">
+                        <div style="font-size:2rem;font-weight:900;color:var(--gold);">🎓</div>
+                        <div style="font-weight:700;margin-top:10px;font-size:0.9rem;">Former</div>
+                        <div style="font-size:0.78rem;color:var(--gray);margin-top:6px;">Sensibiliser à l'IA</div>
+                    </div>
+                    <div style="background:var(--dark-2);border:1px solid rgba(217,70,239,0.12);border-radius:14px;padding:24px;text-align:center;">
+                        <div style="font-size:2rem;font-weight:900;color:var(--gold);">🚀</div>
+                        <div style="font-weight:700;margin-top:10px;font-size:0.9rem;">Créer</div>
+                        <div style="font-size:0.78rem;color:var(--gray);margin-top:6px;">Sans coder</div>
+                    </div>
+                    <div style="background:var(--dark-2);border:1px solid rgba(217,70,239,0.12);border-radius:14px;padding:24px;text-align:center;">
+                        <div style="font-size:2rem;font-weight:900;color:var(--gold);">🏆</div>
+                        <div style="font-weight:700;margin-top:10px;font-size:0.9rem;">Gagner</div>
+                        <div style="font-size:0.78rem;color:var(--gray);margin-top:6px;">950 000 FCFA</div>
+                    </div>
+                </div>
             </div>
-            <div class="about-visual reveal d1">
-                <div class="card-3d" id="main-tilt-card">
+            <div style="position:relative;" class="reveal d1">
+                <div class="card-3d" id="tilt-card">
                     <div class="ai-big">IA</div>
                     <div class="ai-subtitle">Pour Tous</div>
                     <div class="ai-desc">Sans coder. Sans barrière.<br>Juste ta créativité.</div>
                     <div class="card-mini-grid">
-                        <div class="card-mini">
-                            <div class="card-mini-num">20</div>
-                            <div class="card-mini-label">équipes</div>
-                        </div>
-                        <div class="card-mini">
-                            <div class="card-mini-num">5</div>
-                            <div class="card-mini-label">membres/équipe</div>
-                        </div>
-                        <div class="card-mini">
-                            <div class="card-mini-num">1</div>
-                            <div class="card-mini-label">journée</div>
-                        </div>
-                        <div class="card-mini">
-                            <div class="card-mini-num">0</div>
-                            <div class="card-mini-label">ligne de code</div>
-                        </div>
+                        <div class="card-mini"><div class="card-mini-num">20</div><div class="card-mini-label">équipes</div></div>
+                        <div class="card-mini"><div class="card-mini-num">5</div><div class="card-mini-label">membres/équipe</div></div>
+                        <div class="card-mini"><div class="card-mini-num">1</div><div class="card-mini-label">journée</div></div>
+                        <div class="card-mini"><div class="card-mini-num">0</div><div class="card-mini-label">ligne de code</div></div>
                     </div>
                 </div>
                 <div class="float-tag tr">🏆 950 000 FCFA en prix</div>
@@ -1500,411 +1481,151 @@
             </div>
         </div>
     </div>
-</section>
+    <footer><div class="footer-bottom"><span class="footer-logo">VIBEATHON 2026</span><span>© 2026 Vibeathon Côte d'Ivoire</span></div></footer>
+</div>
 
-<!-- ===== CONTEXT ===== -->
-<section id="context">
-    <div class="container">
+
+<!-- ============================================================
+     PAGE : CONTEXTE
+============================================================ -->
+<div class="page" id="page-context">
+    <div class="page-inner">
         <div class="context-layout">
             <div>
                 <p class="section-tag reveal">Contexte</p>
                 <h2 class="section-title reveal">Pourquoi le<br><span>Vibeathon</span> ?</h2>
                 <div class="gold-line reveal"></div>
-                <p class="section-subtitle reveal" style="margin-bottom:0;">
-                    En Côte d'Ivoire, malgré une jeunesse dynamique et une croissance soutenue, une grande partie de la population reste en marge de la révolution IA.
-                </p>
+                <p class="section-subtitle reveal" style="margin-bottom:0;">En Côte d'Ivoire, malgré une jeunesse dynamique et une croissance soutenue, une grande partie de la population reste en marge de la révolution IA.</p>
                 <div class="challenges-list">
                     <div class="challenge-item reveal">
                         <div class="challenge-num">01</div>
-                        <div>
-                            <h3>Accès limité à la formation pratique</h3>
-                            <p>Un accès limité à la formation en intelligence artificielle pour le grand public et les jeunes talents.</p>
-                        </div>
+                        <div><h3>Accès limité à la formation pratique</h3><p>Un accès limité à la formation en intelligence artificielle pour le grand public et les jeunes talents.</p></div>
                     </div>
                     <div class="challenge-item reveal d1">
                         <div class="challenge-num">02</div>
-                        <div>
-                            <h3>Perception élitiste de l'IA</h3>
-                            <p>L'IA perçue comme une technologie complexe et réservée aux experts techniques, créant une barrière psychologique.</p>
-                        </div>
+                        <div><h3>Perception élitiste de l'IA</h3><p>L'IA perçue comme une technologie complexe et réservée aux experts, créant une barrière psychologique.</p></div>
                     </div>
                     <div class="challenge-item reveal d2">
                         <div class="challenge-num">03</div>
-                        <div>
-                            <h3>Faible appropriation numérique</h3>
-                            <p>Une faible appropriation des outils numériques avancés par le grand public ivoirien.</p>
-                        </div>
+                        <div><h3>Faible appropriation numérique</h3><p>Une faible appropriation des outils numériques avancés par le grand public ivoirien.</p></div>
                     </div>
                     <div class="challenge-item reveal d3">
                         <div class="challenge-num">04</div>
-                        <div>
-                            <h3>Méconnaissance des opportunités</h3>
-                            <p>Une méconnaissance des opportunités et des risques liés à l'intelligence artificielle dans le contexte africain.</p>
-                        </div>
+                        <div><h3>Méconnaissance des opportunités</h3><p>Une méconnaissance des opportunités et des risques liés à l'intelligence artificielle dans le contexte africain.</p></div>
                     </div>
                 </div>
             </div>
             <div>
                 <div class="solutions-box reveal d2">
                     <h3>Notre réponse</h3>
-                    <div class="solution-item">
-                        <div class="solution-icon">🌍</div>
-                        Démocratiser l'accès à l'intelligence artificielle
-                    </div>
-                    <div class="solution-item">
-                        <div class="solution-icon">📖</div>
-                        Vulgariser ses usages pour tous les profils
-                    </div>
-                    <div class="solution-item">
-                        <div class="solution-icon">🧪</div>
-                        Offrir des espaces d'expérimentation concrets
-                    </div>
-                    <div class="solution-item">
-                        <div class="solution-icon">💡</div>
-                        Encourager l'innovation locale africaine
-                    </div>
-                    <div class="solution-item">
-                        <div class="solution-icon">🤝</div>
-                        Connecter talents, entreprises et institutions
-                    </div>
+                    <div class="solution-item"><div class="solution-icon">🌍</div> Démocratiser l'accès à l'intelligence artificielle</div>
+                    <div class="solution-item"><div class="solution-icon">📖</div> Vulgariser ses usages pour tous les profils</div>
+                    <div class="solution-item"><div class="solution-icon">🧪</div> Offrir des espaces d'expérimentation concrets</div>
+                    <div class="solution-item"><div class="solution-icon">💡</div> Encourager l'innovation locale africaine</div>
+                    <div class="solution-item"><div class="solution-icon">🤝</div> Connecter talents, entreprises et institutions</div>
                 </div>
             </div>
         </div>
     </div>
-</section>
+    <footer><div class="footer-bottom"><span class="footer-logo">VIBEATHON 2026</span><span>© 2026 Vibeathon Côte d'Ivoire</span></div></footer>
+</div>
 
-<!-- ===== OBJECTIVES ===== -->
-<section id="objectives">
-    <div class="container">
-        <p class="section-tag reveal">Objectifs</p>
-        <h2 class="section-title reveal">Ce que nous voulons <span>accomplir</span></h2>
-        <div class="gold-line reveal"></div>
-        <div class="objectives-grid">
-            <div class="obj-card reveal">
-                <div class="obj-icon">🎓</div>
-                <h3>Former & Sensibiliser</h3>
-                <p>Former et sensibiliser à l'intelligence artificielle : outils, concepts, opportunités et risques liés à son utilisation.</p>
-            </div>
-            <div class="obj-card reveal d1">
-                <div class="obj-icon">🚀</div>
-                <h3>Démocratiser l'Innovation</h3>
-                <p>Rendre la création numérique accessible à tous, sans nécessiter de compétences techniques préalables en programmation.</p>
-            </div>
-            <div class="obj-card reveal d2">
-                <div class="obj-icon">💡</div>
-                <h3>Stimuler la Créativité</h3>
-                <p>Stimuler la création de solutions locales adaptées à des problématiques réelles de Côte d'Ivoire et d'Afrique.</p>
-            </div>
-            <div class="obj-card reveal d1">
-                <div class="obj-icon">⭐</div>
-                <h3>Valoriser les Talents</h3>
-                <p>Détecter et valoriser les talents créatifs et innovants de la jeunesse ivoirienne, toutes formations confondues.</p>
-            </div>
-            <div class="obj-card reveal d2">
-                <div class="obj-icon">🌐</div>
-                <h3>Structurer l'Écosystème</h3>
-                <p>Connecter participants, entreprises, institutions et experts autour de l'IA pour créer des synergies durables.</p>
-            </div>
-            <div class="obj-card reveal d3">
-                <div class="obj-icon">♀</div>
-                <h3>Inclusion Numérique</h3>
-                <p>Ouvrir la création digitale aux non-techniciens, avec une attention particulière pour les femmes et les jeunes.</p>
-            </div>
-        </div>
-    </div>
-</section>
 
-<!-- ===== ACTIVITIES ===== -->
-<section id="activities">
-    <div class="container">
+<!-- ============================================================
+     PAGE : ACTIVITÉS
+============================================================ -->
+<div class="page" id="page-activities">
+    <div class="page-inner">
         <p class="section-tag reveal">Activités</p>
-        <h2 class="section-title reveal">Une journée riche<br>en <span>expériences</span></h2>
+        <h2 class="section-title reveal">Une journée riche en <span>expériences</span></h2>
         <div class="gold-line reveal"></div>
-        <div class="activities-grid">
+        <div class="activities-grid" style="margin-bottom:80px;">
             <div class="act-card featured reveal">
                 <div class="act-tag">⚡ Compétition principale</div>
                 <h3>Compétition du Vibecoding</h3>
-                <p>20 équipes de 5 personnes conçoivent une solution innovante en utilisant l'IA — sans écrire une seule ligne de code. Les 10 meilleures équipes pitchent devant le jury et le public. Encadrement par des coaches tout au long de la compétition.</p>
+                <p>20 équipes de 5 personnes conçoivent une solution innovante en utilisant l'IA — sans écrire une seule ligne de code. Les 10 meilleures équipes pitchent devant le jury et le public.</p>
                 <div class="prizes-row">
-                    <div class="prize-box">
-                        <div class="prize-box-amount">500 000</div>
-                        <div class="prize-box-label">FCFA · 1er Prix 🥇</div>
-                    </div>
-                    <div class="prize-box">
-                        <div class="prize-box-amount">300 000</div>
-                        <div class="prize-box-label">FCFA · 2ème Prix 🥈</div>
-                    </div>
-                    <div class="prize-box">
-                        <div class="prize-box-amount">150 000</div>
-                        <div class="prize-box-label">FCFA · 3ème Prix 🥉</div>
-                    </div>
+                    <div class="prize-box"><div class="prize-box-amount">500 000</div><div class="prize-box-label">FCFA · 1er Prix 🥇</div></div>
+                    <div class="prize-box"><div class="prize-box-amount">300 000</div><div class="prize-box-label">FCFA · 2ème Prix 🥈</div></div>
+                    <div class="prize-box"><div class="prize-box-amount">150 000</div><div class="prize-box-label">FCFA · 3ème Prix 🥉</div></div>
                 </div>
             </div>
-            <div class="act-card dark reveal d1">
-                <div class="act-tag">🎤 Plénière</div>
-                <h3>Keynotes Inspirantes</h3>
-                <p>Des experts partagent leurs visions, expériences concrètes et perspectives sur l'impact transformateur de l'IA en Afrique et dans le monde.</p>
-            </div>
-            <div class="act-card dark reveal d1">
-                <div class="act-tag">💬 Débat</div>
-                <h3>Panel sur l'IA</h3>
-                <p>Introduction aux enjeux de l'IA, sensibilisation aux opportunités et aux risques, et vision stratégique pour la Côte d'Ivoire.</p>
-            </div>
-            <div class="act-card dark reveal d2">
-                <div class="act-tag">🛠 Formation</div>
-                <h3>Ateliers Pratiques IA</h3>
-                <p>5+ sessions interactives de formations pratiques sur l'utilisation des outils IA, encadrées par des formateurs et experts en intelligence artificielle.</p>
-            </div>
-            <div class="act-card dark reveal d2">
-                <div class="act-tag">✨ Expérience immersive</div>
-                <h3>Studios IA</h3>
-                <p>Studio Photo IA et Studio Musique IA — des espaces immersifs pour vivre concrètement l'expérience de l'intelligence artificielle à travers la créativité.</p>
+            <div class="act-card dark reveal d1"><div class="act-tag">🎤 Plénière</div><h3>Keynotes Inspirantes</h3><p>Des experts partagent leurs visions, expériences concrètes et perspectives sur l'impact transformateur de l'IA en Afrique.</p></div>
+            <div class="act-card dark reveal d1"><div class="act-tag">💬 Débat</div><h3>Panel sur l'IA</h3><p>Introduction aux enjeux de l'IA, sensibilisation aux opportunités et risques, vision stratégique pour la Côte d'Ivoire.</p></div>
+            <div class="act-card dark reveal d2"><div class="act-tag">🛠 Formation</div><h3>Ateliers Pratiques IA</h3><p>5+ sessions interactives de formations pratiques sur les outils IA, encadrées par des formateurs experts.</p></div>
+            <div class="act-card dark reveal d2"><div class="act-tag">✨ Expérience immersive</div><h3>Studios IA</h3><p>Studio Photo IA et Studio Musique IA — espaces immersifs pour vivre concrètement l'expérience de l'intelligence artificielle.</p></div>
+        </div>
+
+        <!-- Compétition détaillée -->
+        <div style="border-top:1px solid rgba(255,255,255,0.05);padding-top:80px;">
+            <p class="section-tag reveal">Détails compétition</p>
+            <h2 class="section-title reveal">Le cœur du <span>Vibeathon</span></h2>
+            <div class="gold-line reveal"></div>
+            <div class="comp-layout">
+                <div class="reveal">
+                    <p style="font-size:0.95rem;color:var(--gray-light);line-height:1.85;margin-bottom:16px;">Les participants, regroupés en équipes de 5 personnes, devront concevoir une solution innovante en utilisant l'intelligence artificielle — sans écrire une seule ligne de code. Au total, 20 équipes seront constituées.</p>
+                    <p style="font-size:0.95rem;color:var(--gray-light);line-height:1.85;margin-bottom:16px;">Une attention particulière sera accordée à la diversité des profils, avec une forte encouragement à la participation des femmes, des jeunes et des profils non techniques.</p>
+                    <h3 style="font-size:1rem;font-weight:800;margin:28px 0 4px;color:var(--gold);">Critères d'évaluation</h3>
+                    <ul class="criteria-list">
+                        <li><span class="crit-dot"></span> Niveau d'innovation de la solution</li>
+                        <li><span class="crit-dot"></span> Impact réel et pertinence</li>
+                        <li><span class="crit-dot"></span> Faisabilité et viabilité du projet</li>
+                        <li><span class="crit-dot"></span> Qualité et clarté du pitch</li>
+                        <li><span class="crit-dot"></span> Pertinence de l'utilisation de l'IA</li>
+                    </ul>
+                </div>
+                <div class="reveal d2">
+                    <h3 style="font-size:1rem;font-weight:800;margin-bottom:20px;color:var(--gold);">Dotations</h3>
+                    <div class="prize-cards">
+                        <div class="prize-card p1"><div class="prize-rank">🥇 Premier prix</div><div class="prize-amount">500 000 FCFA</div></div>
+                        <div class="prize-card"><div class="prize-rank">🥈 Deuxième prix</div><div class="prize-amount">300 000 FCFA</div></div>
+                        <div class="prize-card"><div class="prize-rank">🥉 Troisième prix</div><div class="prize-amount">150 000 FCFA</div></div>
+                    </div>
+                    <div class="prize-total"><span class="prize-total-label">Total des dotations</span><span class="prize-total-amount">950 000 FCFA</span></div>
+                </div>
             </div>
         </div>
     </div>
-</section>
+    <footer><div class="footer-bottom"><span class="footer-logo">VIBEATHON 2026</span><span>© 2026 Vibeathon Côte d'Ivoire</span></div></footer>
+</div>
 
-<!-- ===== PROGRAM ===== -->
-<section id="program">
-    <div class="container">
+
+<!-- ============================================================
+     PAGE : PROGRAMME
+============================================================ -->
+<div class="page" id="page-program">
+    <div class="page-inner">
         <p class="section-tag reveal">Programme</p>
         <h2 class="section-title reveal">Déroulé de la <span>journée</span></h2>
         <div class="gold-line reveal"></div>
         <p class="section-subtitle reveal">Samedi 11 Juillet 2026 — CSCTICAO, Abidjan</p>
-        <div class="schedule-wrap reveal" style="margin-top:48px;">
+        <div class="schedule-wrap reveal">
             <div class="sch-row sch-header">
                 <div class="sch-cell">Heure</div>
                 <div class="sch-cell">Plénière / Compétition</div>
                 <div class="sch-cell">Activités parallèles</div>
             </div>
-            <div class="sch-row">
-                <div class="sch-cell sch-time">07h30 – 09h00</div>
-                <div class="sch-cell sch-span">Accueil et accréditation des participants</div>
-            </div>
-            <div class="sch-row">
-                <div class="sch-cell sch-time">09h00 – 11h00</div>
-                <div class="sch-cell sch-span">Keynotes et Panel IA</div>
-            </div>
-            <div class="sch-row">
-                <div class="sch-cell sch-time">11h00 – 11h30</div>
-                <div class="sch-cell">Pause / Installation</div>
-                <div class="sch-cell">Networking</div>
-            </div>
-            <div class="sch-row">
-                <div class="sch-cell sch-time">11h30 – 13h00</div>
-                <div class="sch-cell">Formation vibecoding des compétiteurs</div>
-                <div class="sch-cell">Ateliers de formation | Studio d'expérience IA</div>
-            </div>
-            <div class="sch-row">
-                <div class="sch-cell sch-time">13h00 – 14h00</div>
-                <div class="sch-cell">Pause déjeuner</div>
-                <div class="sch-cell">Networking</div>
-            </div>
-            <div class="sch-row">
-                <div class="sch-cell sch-time">14h00 – 17h30</div>
-                <div class="sch-cell">Compétition vibecoding</div>
-                <div class="sch-cell">Ateliers de formation | Studio d'expérience IA</div>
-            </div>
-            <div class="sch-row">
-                <div class="sch-cell sch-time">17h30 – 18h30</div>
-                <div class="sch-cell sch-span">Première délibération — Pitch des 10 finalistes devant le jury et le public</div>
-            </div>
-            <div class="sch-row">
-                <div class="sch-cell sch-time">18h30 – 19h30</div>
-                <div class="sch-cell sch-span sch-highlight">🏆 Délibération finale, remise des prix aux 03 gagnants & clôture de l'événement</div>
-            </div>
+            <div class="sch-row"><div class="sch-cell sch-time">07h30 – 09h00</div><div class="sch-cell sch-span">Accueil et accréditation des participants</div></div>
+            <div class="sch-row"><div class="sch-cell sch-time">09h00 – 11h00</div><div class="sch-cell sch-span">Keynotes et Panel IA</div></div>
+            <div class="sch-row"><div class="sch-cell sch-time">11h00 – 11h30</div><div class="sch-cell">Pause / Installation</div><div class="sch-cell">Networking</div></div>
+            <div class="sch-row"><div class="sch-cell sch-time">11h30 – 13h00</div><div class="sch-cell">Formation vibecoding des compétiteurs</div><div class="sch-cell">Ateliers de formation | Studio d'expérience IA</div></div>
+            <div class="sch-row"><div class="sch-cell sch-time">13h00 – 14h00</div><div class="sch-cell">Pause déjeuner</div><div class="sch-cell">Networking</div></div>
+            <div class="sch-row"><div class="sch-cell sch-time">14h00 – 17h30</div><div class="sch-cell">Compétition vibecoding</div><div class="sch-cell">Ateliers de formation | Studio d'expérience IA</div></div>
+            <div class="sch-row"><div class="sch-cell sch-time">17h30 – 18h30</div><div class="sch-cell sch-span">Première délibération — Pitch des 10 finalistes devant le jury et le public</div></div>
+            <div class="sch-row"><div class="sch-cell sch-time">18h30 – 19h30</div><div class="sch-cell sch-span sch-highlight">🏆 Délibération finale, remise des prix aux 03 gagnants & clôture de l'événement</div></div>
         </div>
     </div>
-</section>
+    <footer><div class="footer-bottom"><span class="footer-logo">VIBEATHON 2026</span><span>© 2026 Vibeathon Côte d'Ivoire</span></div></footer>
+</div>
 
-<!-- ===== COMPETITION ===== -->
-<section id="competition">
-    <div class="container">
-        <p class="section-tag reveal">Compétition</p>
-        <h2 class="section-title reveal">Le cœur du <span>Vibeathon</span></h2>
-        <div class="gold-line reveal"></div>
-        <div class="comp-layout">
-            <div class="comp-desc reveal">
-                <p>
-                    Les participants, regroupés en équipes de 5 personnes, devront concevoir une solution innovante en utilisant l'intelligence artificielle — sans écrire une seule ligne de code. Au total, 20 équipes seront constituées.
-                </p>
-                <p>
-                    Une attention particulière sera accordée à la diversité des profils, avec une forte encouragement à la participation des femmes, des jeunes et des profils non techniques, afin de favoriser une innovation inclusive.
-                </p>
-                <h3 style="font-size:1rem;font-weight:800;margin:28px 0 4px;color:var(--gold);">Critères d'évaluation</h3>
-                <ul class="criteria-list">
-                    <li><span class="crit-dot"></span> Niveau d'innovation de la solution proposée</li>
-                    <li><span class="crit-dot"></span> Impact réel et pertinence de la solution</li>
-                    <li><span class="crit-dot"></span> Faisabilité et viabilité du projet</li>
-                    <li><span class="crit-dot"></span> Qualité et clarté du pitch de présentation</li>
-                    <li><span class="crit-dot"></span> Pertinence de l'utilisation de l'intelligence artificielle</li>
-                </ul>
-                <h3 style="font-size:1rem;font-weight:800;margin:28px 0 12px;color:var(--gold);">Cibles prioritaires</h3>
-                <p>Étudiants · Jeunes diplômés · Entrepreneurs · Professionnels tous secteurs · Créateurs · Grand public · Personnes en reconversion</p>
-            </div>
-            <div class="reveal d2">
-                <h3 style="font-size:1rem;font-weight:800;margin-bottom:20px;color:var(--gold);">Dotations</h3>
-                <div class="prize-cards">
-                    <div class="prize-card p1">
-                        <div class="prize-rank">🥇 Premier prix</div>
-                        <div class="prize-amount">500 000 FCFA</div>
-                    </div>
-                    <div class="prize-card">
-                        <div class="prize-rank">🥈 Deuxième prix</div>
-                        <div class="prize-amount">300 000 FCFA</div>
-                    </div>
-                    <div class="prize-card">
-                        <div class="prize-rank">🥉 Troisième prix</div>
-                        <div class="prize-amount">150 000 FCFA</div>
-                    </div>
-                </div>
-                <div class="prize-total">
-                    <span class="prize-total-label">Total des dotations</span>
-                    <span class="prize-total-amount">950 000 FCFA</span>
-                </div>
-                <div style="margin-top:28px;background:var(--dark-3);border-radius:14px;padding:24px;">
-                    <h4 style="font-size:0.85rem;font-weight:700;color:var(--gold);margin-bottom:16px;">Déroulement</h4>
-                    <div style="display:flex;flex-direction:column;gap:10px;font-size:0.82rem;color:var(--gray-light);">
-                        <div style="display:flex;gap:10px;align-items:center;"><span style="color:var(--gold);font-weight:700;">1.</span> Formation aux outils IA (vibecoding)</div>
-                        <div style="display:flex;gap:10px;align-items:center;"><span style="color:var(--gold);font-weight:700;">2.</span> Phase de création en équipe</div>
-                        <div style="display:flex;gap:10px;align-items:center;"><span style="color:var(--gold);font-weight:700;">3.</span> Finalisation des projets</div>
-                        <div style="display:flex;gap:10px;align-items:center;"><span style="color:var(--gold);font-weight:700;">4.</span> Sélection des 10 meilleures équipes</div>
-                        <div style="display:flex;gap:10px;align-items:center;"><span style="color:var(--gold);font-weight:700;">5.</span> Pitch des 10 finalistes devant le jury</div>
-                        <div style="display:flex;gap:10px;align-items:center;"><span style="color:var(--gold);font-weight:700;">6.</span> Délibération finale & remise des prix</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
-<!-- ===== RESULTS ===== -->
-<section id="results">
-    <div class="container">
-        <p class="section-tag reveal">Résultats attendus</p>
-        <h2 class="section-title reveal">L'impact que nous<br>voulons <span>créer</span></h2>
-        <div class="gold-line reveal"></div>
-        <div class="results-grid">
-            <div class="result-numbers reveal">
-                <div class="result-item">
-                    <span class="result-label">Participants mobilisés</span>
-                    <span class="result-value">300</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Compétiteurs formés au vibecoding</span>
-                    <span class="result-value">100</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Solutions développées en une journée</span>
-                    <span class="result-value">20</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Projets primés avec fort potentiel</span>
-                    <span class="result-value">03</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Personnes sensibilisées à l'IA</span>
-                    <span class="result-value">200+</span>
-                </div>
-            </div>
-            <div class="result-qualitative reveal d2">
-                <div class="qual-item">
-                    <span class="qual-icon">📈</span>
-                    <div>
-                        <h4>Montée en compétences</h4>
-                        <p>Compréhension pratique de l'IA et de ses usages concrets dans les secteurs clés.</p>
-                    </div>
-                </div>
-                <div class="qual-item">
-                    <span class="qual-icon">🔓</span>
-                    <div>
-                        <h4>Changement de perception</h4>
-                        <p>Une IA perçue comme accessible à tous, pas seulement aux experts techniques.</p>
-                    </div>
-                </div>
-                <div class="qual-item">
-                    <span class="qual-icon">💻</span>
-                    <div>
-                        <h4>Inclusion numérique</h4>
-                        <p>Ouverture de la création digitale aux non-techniciens et profils créatifs.</p>
-                    </div>
-                </div>
-                <div class="qual-item">
-                    <span class="qual-icon">🌱</span>
-                    <div>
-                        <h4>Innovation locale</h4>
-                        <p>Émergence de solutions concrètes adaptées au contexte ivoirien et africain.</p>
-                    </div>
-                </div>
-                <div class="qual-item">
-                    <span class="qual-icon">🔗</span>
-                    <div>
-                        <h4>Dynamique écosystémique</h4>
-                        <p>Connexions durables entre talents, entreprises et institutions autour de l'IA.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ===== SPONSORING ===== -->
-<section id="sponsoring">
-    <div class="container">
-        <p class="section-tag reveal">Partenariats</p>
-        <h2 class="section-title reveal">Offre <span>Sponsoring</span></h2>
-        <div class="gold-line reveal"></div>
-        <p class="section-subtitle reveal">Associez votre marque à un événement innovant à fort impact. Investissez dans la prochaine génération de créateurs africains.</p>
-        <div class="sponsor-grid">
-            <div class="sponsor-card platinum reveal">
-                <div class="tier-name">Platinum</div>
-                <div class="tier-price">5 000 000 FCFA</div>
-                <ul class="tier-features">
-                    <li><span class="tier-check">✓</span> Co-branding de l'événement (nom associé)</li>
-                    <li><span class="tier-check">✓</span> Visibilité maximale sur tous les supports de communication</li>
-                    <li><span class="tier-check">✓</span> Prise de parole officielle (keynote, panel ou ouverture)</li>
-                    <li><span class="tier-check">✓</span> Branding sur la scène principale et espaces clés</li>
-                    <li><span class="tier-check">✓</span> Accès privilégié aux talents et participants</li>
-                    <li><span class="tier-check">✓</span> Présence dans les contenus médias et digitaux</li>
-                </ul>
-            </div>
-            <div class="sponsor-card gold-tier reveal d1">
-                <div class="tier-name">Gold</div>
-                <div class="tier-price">3 000 000 FCFA</div>
-                <ul class="tier-features">
-                    <li><span class="tier-check">✓</span> Forte visibilité sur les supports de communication</li>
-                    <li><span class="tier-check">✓</span> Possibilité d'intervention (atelier ou panel)</li>
-                    <li><span class="tier-check">✓</span> Branding sur les espaces clés de l'événement</li>
-                    <li><span class="tier-check">✓</span> Accès aux participants et networking</li>
-                </ul>
-            </div>
-            <div class="sponsor-card silver reveal d2">
-                <div class="tier-name">Silver</div>
-                <div class="tier-price">1 500 000 FCFA</div>
-                <ul class="tier-features">
-                    <li><span class="tier-check">✓</span> Logo sur les supports de communication</li>
-                    <li><span class="tier-check">✓</span> Visibilité sur le site officiel de l'événement</li>
-                    <li><span class="tier-check">✓</span> Mention dans les communications digitales</li>
-                </ul>
-            </div>
-            <div class="sponsor-card technical reveal d3">
-                <div class="tier-name">Support Technique</div>
-                <div class="tier-price" style="font-size:1.4rem;">Partenariat en nature</div>
-                <ul class="tier-features">
-                    <li><span class="tier-check">✓</span> Fourniture de services ou équipements (internet, matériel, dotations, etc.)</li>
-                    <li><span class="tier-check">✓</span> Visibilité adaptée au niveau de contribution</li>
-                    <li><span class="tier-check">✓</span> Mention comme partenaire technique officiel</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ===== ORGANIZERS ===== -->
-<section id="organizers">
-    <div class="container">
+<!-- ============================================================
+     PAGE : ORGANISATEURS
+============================================================ -->
+<div class="page" id="page-organizers">
+    <div class="page-inner">
         <p class="section-tag reveal">Organisateurs</p>
-        <h2 class="section-title reveal">L'équipe <span>derrière</span><br>le Vibeathon</h2>
+        <h2 class="section-title reveal">L'équipe <span>derrière</span> le Vibeathon</h2>
         <div class="gold-line reveal"></div>
         <div class="org-grid">
             <div class="org-card reveal">
@@ -1932,89 +1653,268 @@
                 <div class="org-contact-info">+225 07 57 55 38 26<br>ruben.ipote@rit-africa.com</div>
             </div>
         </div>
-    </div>
-</section>
 
-<!-- ===== CTA ===== -->
-<section id="cta">
-    <div class="container" style="position:relative;z-index:1;">
-        <p class="section-tag reveal" style="text-align:center;">Rejoignez-nous</p>
-        <h2 class="cta-title reveal">Prêt à créer<br><span style="color:var(--gold);">l'avenir</span> ?</h2>
-        <p class="cta-subtitle reveal">
-            Inscrivez-vous au Vibeathon 2026 et rejoignez une communauté de créateurs, d'innovateurs et d'entrepreneurs qui façonnent la Côte d'Ivoire de demain.
-        </p>
-        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;" class="reveal d1">
-            <a href="https://vibeathonci.com" class="btn-primary" style="font-size:1.05rem;padding:18px 48px;">S'inscrire maintenant</a>
-            <a href="mailto:nelly.ossey@creativoci.com" class="btn-secondary" style="font-size:1.05rem;padding:18px 48px;">Devenir partenaire</a>
-        </div>
-        <div class="cta-meta reveal d2">
-            <div class="cta-meta-item">
-                <div class="cta-meta-label">Date</div>
-                <div class="cta-meta-value">11 Juillet 2026</div>
-            </div>
-            <div class="cta-meta-item">
-                <div class="cta-meta-label">Lieu</div>
-                <div class="cta-meta-value">CSCTICAO, Abidjan</div>
-            </div>
-            <div class="cta-meta-item">
-                <div class="cta-meta-label">Site</div>
-                <div class="cta-meta-value">vibeathonci.com</div>
-            </div>
-            <div class="cta-meta-item">
-                <div class="cta-meta-label">Contact</div>
-                <div class="cta-meta-value">+225 07 88 13 83 32</div>
+        <!-- Partenaires stratégiques -->
+        <div style="margin-top:80px;border-top:1px solid rgba(255,255,255,0.05);padding-top:60px;">
+            <p class="section-tag reveal">Partenaires stratégiques</p>
+            <h3 class="section-title reveal" style="font-size:2rem;">Ils nous <span>soutiennent</span></h3>
+            <div class="gold-line reveal"></div>
+            <div style="display:flex;gap:24px;flex-wrap:wrap;" class="reveal">
+                <div style="flex:1;min-width:200px;background:var(--dark-2);border:1px solid rgba(255,255,255,0.05);border-radius:16px;padding:32px;text-align:center;">
+                    <div style="font-size:1.1rem;font-weight:800;color:var(--gold);">AFRINNOVATCH</div>
+                    <div style="font-size:0.78rem;color:var(--gray);margin-top:6px;">Partenaire stratégique</div>
+                </div>
+                <div style="flex:1;min-width:200px;background:var(--dark-2);border:1px solid rgba(255,255,255,0.05);border-radius:16px;padding:32px;text-align:center;">
+                    <div style="font-size:1.1rem;font-weight:800;color:var(--gold);">AE TECH CONSULTING</div>
+                    <div style="font-size:0.78rem;color:var(--gray);margin-top:6px;">Partenaire stratégique</div>
+                </div>
             </div>
         </div>
     </div>
-</section>
+    <footer><div class="footer-bottom"><span class="footer-logo">VIBEATHON 2026</span><span>© 2026 Vibeathon Côte d'Ivoire</span></div></footer>
+</div>
 
-<!-- ===== FOOTER ===== -->
-<footer>
-    <div class="footer-grid">
-        <div>
-            <div class="footer-logo">VIBEATHON 2026</div>
-            <p class="footer-desc">Démocratiser l'IA et révèler une nouvelle génération de créateurs capables de transformer leurs idées en solutions concrètes grâce à l'intelligence artificielle.</p>
-            <div class="footer-socials">
-                <a href="#" class="social-btn" title="Facebook">f</a>
-                <a href="#" class="social-btn" title="LinkedIn">in</a>
-                <a href="#" class="social-btn" title="Instagram">◎</a>
-                <a href="#" class="social-btn" title="TikTok">♪</a>
+
+<!-- ============================================================
+     PAGE : INSCRIPTION
+============================================================ -->
+<div class="page" id="page-inscription">
+    <div class="insc-scene">
+
+        <!-- Lampe gauche -->
+        <div class="insc-lamp">
+            <svg viewBox="0 0 220 380" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Glow -->
+                <radialGradient id="lampGlow" cx="50%" cy="52%" r="45%">
+                    <stop offset="0%" stop-color="#d946ef" stop-opacity="0.9"/>
+                    <stop offset="100%" stop-color="#d946ef" stop-opacity="0"/>
+                </radialGradient>
+                <ellipse cx="110" cy="190" rx="100" ry="100" fill="url(#lampGlow)" opacity="0.35"/>
+                <!-- Abat-jour -->
+                <path d="M55 80 L165 80 L140 200 L80 200 Z" fill="#d946ef"/>
+                <!-- Brillance intérieure -->
+                <path d="M80 85 L150 85 L135 185 L90 185 Z" fill="#E8C96A" opacity="0.4"/>
+                <ellipse cx="110" cy="160" rx="28" ry="28" fill="white" opacity="0.7" filter="blur(8px)"/>
+                <!-- Trait supérieur -->
+                <rect x="85" y="72" width="50" height="10" rx="5" fill="#6d28d9"/>
+                <!-- Pied -->
+                <rect x="106" y="200" width="8" height="130" rx="4" fill="#6d28d9"/>
+                <!-- Base -->
+                <ellipse cx="110" cy="330" rx="28" ry="8" fill="#6d28d9"/>
+                <!-- Pendule -->
+                <line x1="110" y1="290" x2="110" y2="320" stroke="#d946ef" stroke-width="2"/>
+                <circle cx="110" cy="324" r="6" fill="#d946ef"/>
+            </svg>
+        </div>
+
+        <!-- Carte formulaire droite -->
+        <div class="insc-card reveal">
+
+            <!-- ── ÉTAPE 1 : informations personnelles ── -->
+            <div id="insc-step1">
+                <h2 class="insc-title">INSCRIPTION</h2>
+                <div class="insc-dot"></div>
+
+                <form class="insc-form" id="insc-form1" onsubmit="handleInscSubmit(event)">
+
+                    <div class="insc-field">
+                        <label class="insc-label">NOM COMPLET</label>
+                        <input class="insc-input" type="text" placeholder="Jean Kouassi" required/>
+                    </div>
+
+                    <div class="insc-field">
+                        <label class="insc-label">EMAIL</label>
+                        <input class="insc-input" type="email" placeholder="jean@example.com" required/>
+                    </div>
+
+                    <div class="insc-row">
+                        <div class="insc-field">
+                            <label class="insc-label">DATE DE NAISSANCE</label>
+                            <input class="insc-input" type="date" required/>
+                        </div>
+                        <div class="insc-field">
+                            <label class="insc-label">LIEU D'HABITATION</label>
+                            <input class="insc-input" type="text" placeholder="Abidjan"/>
+                        </div>
+                    </div>
+
+                    <div class="insc-field">
+                        <label class="insc-label">CHOISISSEZ VOTRE PASS</label>
+                        <div class="pass-cards" id="pass-cards">
+
+                            <!-- Vibe Public — toujours non disponible -->
+                            <div class="pass-card pass-card-off" data-pass="public">
+                                <span class="pass-tag pass-tag-off">Non disponible</span>
+                                <div class="pass-card-name">Vibe Public</div>
+                                <div class="pass-card-price">Gratuit</div>
+                            </div>
+
+                            <!-- Vibe Elite — au centre -->
+                            <div class="pass-card" id="card-elite" data-pass="elite" onclick="selectPass(this,'elite')">
+                                <span class="pass-tag" id="spots-elite" style="display:none;"></span>
+                                <div class="pass-card-name">Vibe Elite</div>
+                                <div class="pass-card-price">20 000 FCFA</div>
+                            </div>
+
+                            <!-- Vibe Academy -->
+                            <div class="pass-card selected" id="card-academy" data-pass="academy" onclick="selectPass(this,'academy')">
+                                <span class="pass-tag" id="spots-academy" style="display:none;"></span>
+                                <div class="pass-card-name">Vibe Academy</div>
+                                <div class="pass-card-price">10 000 FCFA</div>
+                            </div>
+
+                        </div>
+                        <input type="hidden" id="pass-select" value="academy"/>
+                    </div>
+
+                    <button type="submit" class="insc-btn" id="insc-main-btn">
+                        SUIVANT &nbsp;→
+                    </button>
+                </form>
             </div>
+
+            <!-- ── ÉTAPE 2 : paiement ── -->
+            <div id="insc-step2" style="display:none;">
+                <h2 class="insc-title">PAIEMENT</h2>
+                <div class="insc-dot"></div>
+
+                <p class="pay-recap">
+                    Pass : <strong id="pay-pass-label"></strong>&nbsp;&nbsp;|&nbsp;&nbsp;Montant : <strong id="pay-amount-label"></strong>
+                </p>
+
+                <!-- Code de référence unique -->
+                <div class="pay-ref-box">
+                    <span class="pay-ref-label">VOTRE CODE</span>
+                    <span class="pay-ref-code" id="pay-ref-code">---</span>
+                    <button type="button" class="pay-ref-copy" onclick="copyRef()" title="Copier le code">⧉</button>
+                </div>
+
+                <div class="pay-methods" id="pay-methods-grid">
+                    <label class="pay-method-card selected" onclick="selectPayMethod(this,'wave')">
+                        <input type="radio" name="pay-method" value="wave" checked/>
+                        <span class="pay-method-icon">🔵</span>
+                        <span>Wave</span>
+                        <span class="pay-badge">Recommandé</span>
+                    </label>
+                    <label class="pay-method-card" onclick="selectPayMethod(this,'orange')">
+                        <input type="radio" name="pay-method" value="orange"/>
+                        <span class="pay-method-icon">🟠</span>
+                        <span>Orange Money</span>
+                    </label>
+                    <label class="pay-method-card" onclick="selectPayMethod(this,'mtn')">
+                        <input type="radio" name="pay-method" value="mtn"/>
+                        <span class="pay-method-icon">🟡</span>
+                        <span>MTN MoMo</span>
+                    </label>
+                    <label class="pay-method-card" onclick="selectPayMethod(this,'card')">
+                        <input type="radio" name="pay-method" value="card"/>
+                        <span class="pay-method-icon">💳</span>
+                        <span>Carte bancaire</span>
+                    </label>
+                </div>
+
+                <!-- Info Wave (affiché quand Wave est sélectionné) -->
+                <div id="wave-info" class="wave-info-box">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="flex-shrink:0"><circle cx="12" cy="12" r="10" stroke="#3b82f6" stroke-width="2"/><path d="M12 8v4m0 4h.01" stroke="#3b82f6" stroke-width="2" stroke-linecap="round"/></svg>
+                    <span>Vous serez redirigé vers Wave pour payer <strong id="wave-amount-display"></strong>. Dans le champ <em>Motif</em> de Wave, notez votre code de référence ci-dessus pour valider votre inscription.</span>
+                </div>
+
+                <!-- Champ téléphone (autres méthodes) -->
+                <div id="pay-phone-wrapper" class="insc-field" style="display:none; margin-top:4px;">
+                    <label class="insc-label" id="pay-phone-label">NUMÉRO DE TÉLÉPHONE</label>
+                    <input class="insc-input" type="tel" id="pay-phone" placeholder="+225 07 XX XX XX XX"/>
+                </div>
+
+                <button class="insc-btn" id="pay-confirm-btn" onclick="submitPayment()">
+                    PAYER AVEC WAVE &nbsp;→
+                </button>
+                <button type="button" class="insc-back-btn" onclick="backToStep1()">← Retour</button>
+            </div>
+
         </div>
-        <div class="footer-col">
-            <h4>Navigation</h4>
-            <ul class="footer-links">
-                <li><a href="#about">À propos</a></li>
-                <li><a href="#context">Contexte</a></li>
-                <li><a href="#activities">Activités</a></li>
-                <li><a href="#program">Programme</a></li>
-                <li><a href="#competition">Compétition</a></li>
-                <li><a href="#sponsoring">Sponsoring</a></li>
-                <li><a href="#organizers">Organisateurs</a></li>
-            </ul>
-        </div>
-        <div class="footer-col">
-            <h4>Contact</h4>
-            <ul class="footer-links">
-                <li><a href="mailto:nelly.ossey@creativoci.com">nelly.ossey@creativoci.com</a></li>
-                <li><a href="mailto:ruben.ipote@rit-africa.com">ruben.ipote@rit-africa.com</a></li>
-                <li><a href="tel:+2250788138332">+225 07 88 13 83 32</a></li>
-                <li><a href="tel:+2250757553826">+225 07 57 55 38 26</a></li>
-                <li><a href="https://vibeathonci.com">vibeathonci.com</a></li>
-            </ul>
-        </div>
+
     </div>
-    <div class="footer-bottom">
-        <span>© 2026 Vibeathon Côte d'Ivoire. Tous droits réservés.</span>
-        <span>Organisé par CREATIV'O · CREATIVX · RIT-AFRICA</span>
-    </div>
-</footer>
+    <footer style="position:relative;z-index:2;">
+        <div class="footer-bottom"><span class="footer-logo">VIBEATHON 2026</span><span>© 2026 Vibeathon Côte d'Ivoire · CREATIV'O · CREATIVX · RIT-AFRICA</span></div>
+    </footer>
+</div>
+
 
 <!-- ===== SCRIPTS ===== -->
 <script>
-/* ─── THREE.JS — Particle Neural Network ─── */
-(function() {
+/* ─── Navigation entre onglets ─── */
+const pages = ['accueil','about','context','activities','program','organizers','inscription'];
+
+function showPage(id) {
+    // Cacher toutes les pages
+    pages.forEach(p => {
+        const el = document.getElementById('page-' + p);
+        if (el) el.classList.remove('active');
+        const tab = document.getElementById('tab-' + p);
+        if (tab) tab.classList.remove('active');
+    });
+
+    // Afficher la page cible
+    const target = document.getElementById('page-' + id);
+    if (target) {
+        target.classList.add('active');
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        // Déclencher les animations
+        setTimeout(() => triggerReveal(), 50);
+        // Three.js tourne en fond fixe — pas besoin de relancer
+        // Relancer les compteurs si accueil
+        if (id === 'accueil') initCounters();
+    }
+
+    const tab = document.getElementById('tab-' + id);
+    if (tab) tab.classList.add('active');
+
+    // Mettre à jour l'URL
+    history.pushState(null, '', '#' + id);
+}
+
+/* ─── Animations reveal ─── */
+function triggerReveal() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.08 });
+
+    document.querySelectorAll('.page.active .reveal:not(.visible)').forEach(el => {
+        observer.observe(el);
+    });
+}
+
+/* ─── Compteurs animés ─── */
+function initCounters() {
+    document.querySelectorAll('[data-target]').forEach(el => {
+        el.textContent = '0' + (el.dataset.suffix || '');
+    });
+
+    const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            const el = entry.target;
+            const target = parseInt(el.dataset.target);
+            const suffix = el.dataset.suffix || '';
+            let current = 0;
+            const step = target / (1400 / 16);
+            const timer = setInterval(() => {
+                current = Math.min(current + step, target);
+                el.textContent = Math.floor(current) + suffix;
+                if (current >= target) clearInterval(timer);
+            }, 16);
+            obs.unobserve(el);
+        });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('[data-target]').forEach(el => obs.observe(el));
+}
+
+/* ─── THREE.JS Particles (fond global) ─── */
+function initThree() {
     const canvas = document.getElementById('hero-canvas');
+    if (!canvas || typeof THREE === 'undefined') return;
+
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -2031,60 +1931,45 @@
         pos[i*3]   = (Math.random() - 0.5) * 130;
         pos[i*3+1] = (Math.random() - 0.5) * 90;
         pos[i*3+2] = (Math.random() - 0.5) * 55;
-        vel.push({
-            x: (Math.random() - 0.5) * 0.035,
-            y: (Math.random() - 0.5) * 0.035,
-            z: (Math.random() - 0.5) * 0.018
-        });
+        vel.push({ x: (Math.random()-0.5)*0.035, y: (Math.random()-0.5)*0.035, z: (Math.random()-0.5)*0.018 });
     }
 
     const ptGeo = new THREE.BufferGeometry();
     ptGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    const ptMat = new THREE.PointsMaterial({ color: 0xC9A84C, size: 0.55, transparent: true, opacity: 0.85 });
+    const ptMat = new THREE.PointsMaterial({ color: 0xd946ef, size: 0.5, transparent: true, opacity: 0.75 });
     scene.add(new THREE.Points(ptGeo, ptMat));
 
-    const MAX_LINES = COUNT * 4;
-    const lPos = new Float32Array(MAX_LINES * 3 * 2);
-    const lCol = new Float32Array(MAX_LINES * 3 * 2);
+    const MAX = COUNT * 4;
+    const lPos = new Float32Array(MAX * 6), lCol = new Float32Array(MAX * 6);
     const lGeo = new THREE.BufferGeometry();
     lGeo.setAttribute('position', new THREE.BufferAttribute(lPos, 3).setUsage(THREE.DynamicDrawUsage));
     lGeo.setAttribute('color',    new THREE.BufferAttribute(lCol, 3).setUsage(THREE.DynamicDrawUsage));
     lGeo.setDrawRange(0, 0);
-    const lMat = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.22 });
-    scene.add(new THREE.LineSegments(lGeo, lMat));
+    scene.add(new THREE.LineSegments(lGeo, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.22 })));
 
     let mx = 0, my = 0;
-    document.addEventListener('mousemove', e => {
-        mx = (e.clientX / window.innerWidth - 0.5) * 0.4;
-        my = (e.clientY / window.innerHeight - 0.5) * 0.4;
-    });
+    document.addEventListener('mousemove', e => { mx = (e.clientX/window.innerWidth-0.5)*0.4; my = (e.clientY/window.innerHeight-0.5)*0.4; });
 
     const conns = new Array(COUNT).fill(0);
-    const THRESH = 20;
     const r = 0.788, g = 0.659, b = 0.298;
 
-    function animate() {
-        requestAnimationFrame(animate);
-        let lv = 0;
-        conns.fill(0);
-
+    (function loop() {
+        requestAnimationFrame(loop);
+        let lv = 0; conns.fill(0);
         for (let i = 0; i < COUNT; i++) {
-            pos[i*3]   += vel[i].x;
-            pos[i*3+1] += vel[i].y;
-            pos[i*3+2] += vel[i].z;
-            if (Math.abs(pos[i*3])   > 65) vel[i].x *= -1;
-            if (Math.abs(pos[i*3+1]) > 45) vel[i].y *= -1;
-            if (Math.abs(pos[i*3+2]) > 27) vel[i].z *= -1;
+            pos[i*3]+=vel[i].x; pos[i*3+1]+=vel[i].y; pos[i*3+2]+=vel[i].z;
+            if (Math.abs(pos[i*3])>65) vel[i].x*=-1;
+            if (Math.abs(pos[i*3+1])>45) vel[i].y*=-1;
+            if (Math.abs(pos[i*3+2])>27) vel[i].z*=-1;
         }
-
-        for (let i = 0; i < COUNT && lv < MAX_LINES*2-2; i++) {
-            for (let j = i+1; j < COUNT && lv < MAX_LINES*2-2; j++) {
-                if (conns[i] >= 5 || conns[j] >= 5) continue;
-                const dx = pos[i*3]-pos[j*3], dy = pos[i*3+1]-pos[j*3+1], dz = pos[i*3+2]-pos[j*3+2];
-                const d = Math.sqrt(dx*dx+dy*dy+dz*dz);
-                if (d < THRESH) {
+        for (let i = 0; i < COUNT && lv < MAX*2-2; i++) {
+            for (let j = i+1; j < COUNT && lv < MAX*2-2; j++) {
+                if (conns[i]>=5||conns[j]>=5) continue;
+                const dx=pos[i*3]-pos[j*3], dy=pos[i*3+1]-pos[j*3+1], dz=pos[i*3+2]-pos[j*3+2];
+                const d=Math.sqrt(dx*dx+dy*dy+dz*dz);
+                if (d < 20) {
                     conns[i]++; conns[j]++;
-                    const a = 1 - d/THRESH;
+                    const a=1-d/20;
                     lPos[lv*3]=pos[i*3]; lPos[lv*3+1]=pos[i*3+1]; lPos[lv*3+2]=pos[i*3+2];
                     lCol[lv*3]=r*a; lCol[lv*3+1]=g*a; lCol[lv*3+2]=b*a; lv++;
                     lPos[lv*3]=pos[j*3]; lPos[lv*3+1]=pos[j*3+1]; lPos[lv*3+2]=pos[j*3+2];
@@ -2092,84 +1977,222 @@
                 }
             }
         }
-
         ptGeo.attributes.position.needsUpdate = true;
         lGeo.attributes.position.needsUpdate = true;
         lGeo.attributes.color.needsUpdate = true;
         lGeo.setDrawRange(0, lv);
-
-        camera.position.x += (mx*10 - camera.position.x) * 0.04;
-        camera.position.y += (-my*6  - camera.position.y) * 0.04;
+        camera.position.x += (mx*10 - camera.position.x)*0.04;
+        camera.position.y += (-my*6 - camera.position.y)*0.04;
         renderer.render(scene, camera);
-    }
-    animate();
+    })();
 
     window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
-})();
+}
 
-/* ─── NAVBAR scroll ─── */
-const navbar = document.getElementById('navbar');
-window.addEventListener('scroll', () => {
-    navbar.classList.toggle('scrolled', window.scrollY > 60);
-});
-
-/* ─── Scroll reveal ─── */
-const revealObserver = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1 });
-document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
-
-/* ─── Counter animation ─── */
-const counterObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        const el = entry.target;
-        const target = parseInt(el.dataset.target);
-        const suffix = el.dataset.suffix || '';
-        let current = 0;
-        const duration = 1400;
-        const step = target / (duration / 16);
-        const timer = setInterval(() => {
-            current = Math.min(current + step, target);
-            el.textContent = Math.floor(current) + suffix;
-            if (current >= target) clearInterval(timer);
-        }, 16);
-        counterObserver.unobserve(el);
-    });
-}, { threshold: 0.5 });
-document.querySelectorAll('[data-target]').forEach(el => counterObserver.observe(el));
-
-/* ─── 3D Tilt effect ─── */
-function applyTilt(el, maxDeg) {
-    el.addEventListener('mousemove', e => {
-        const r = el.getBoundingClientRect();
-        const x = (e.clientX - r.left) / r.width  - 0.5;
-        const y = (e.clientY - r.top)  / r.height - 0.5;
-        el.style.transition = 'transform 0.1s ease';
-        el.style.transform = `perspective(900px) rotateX(${-y*maxDeg*2}deg) rotateY(${x*maxDeg*2}deg) scale(1.02)`;
-    });
-    el.addEventListener('mouseleave', () => {
-        el.style.transition = 'transform 0.5s ease';
-        el.style.transform = '';
+/* ─── 3D Tilt ─── */
+function applyTilt(selector, deg) {
+    document.querySelectorAll(selector).forEach(el => {
+        el.addEventListener('mousemove', e => {
+            const r = el.getBoundingClientRect();
+            const x = (e.clientX-r.left)/r.width-0.5;
+            const y = (e.clientY-r.top)/r.height-0.5;
+            el.style.transition = 'transform 0.1s ease';
+            el.style.transform = `perspective(900px) rotateX(${-y*deg*2}deg) rotateY(${x*deg*2}deg) scale(1.02)`;
+        });
+        el.addEventListener('mouseleave', () => {
+            el.style.transition = 'transform 0.5s ease';
+            el.style.transform = '';
+        });
     });
 }
 
-document.querySelectorAll('.card-3d').forEach(el => applyTilt(el, 7));
-document.querySelectorAll('.obj-card, .challenge-item, .sponsor-card, .act-card').forEach(el => applyTilt(el, 4));
+applyTilt('.card-3d', 7);
+applyTilt('.obj-card, .challenge-item, .sponsor-card, .act-card, .org-card', 4);
+document.addEventListener('DOMContentLoaded', initPassCards);
+
+/* ─── Inscription multi-étapes ─── */
+const WAVE_URL   = 'https://pay.wave.com/m/M_ci_yBsEOmpI8df1/c/ci/';
+const tarifs     = { public: 'Gratuit', academy: '10 000 FCFA', elite: '20 000 FCFA' };
+const tarifsNum  = { public: 0, academy: 10000, elite: 20000 };
+const passLabels = { public: 'Vibe Public', academy: 'Vibe Academy', elite: 'Vibe Elite' };
+
+// ── Limites de places (admin: mettre à jour INSCRITS au fur et à mesure) ──
+const LIMITE   = { academy: 180, elite: 100 };
+const INSCRITS = { academy: 0,   elite: 0   }; // ← mettre à jour manuellement
+
+function initPassCards() {
+    ['academy','elite'].forEach(pass => {
+        const remaining = LIMITE[pass] - INSCRITS[pass];
+        const card  = document.getElementById('card-' + pass);
+        const spots = document.getElementById('spots-' + pass);
+        if (!card || !spots) return;
+
+        if (remaining <= 0) {
+            if (pass === 'academy') {
+                card.style.display = 'none';
+                if (document.getElementById('pass-select').value === 'academy') {
+                    const eliteCard = document.getElementById('card-elite');
+                    if (eliteCard && !eliteCard.classList.contains('pass-card-full'))
+                        selectPass(eliteCard, 'elite');
+                }
+            } else {
+                card.classList.add('pass-card-full');
+                card.onclick = null;
+                spots.textContent = 'Complet';
+                spots.className = 'pass-tag pass-tag-full';
+                spots.style.display = 'inline-block';
+                if (document.getElementById('pass-select').value === 'elite') {
+                    const acaCard = document.getElementById('card-academy');
+                    if (acaCard && acaCard.style.display !== 'none') selectPass(acaCard, 'academy');
+                }
+            }
+        }
+    });
+}
+
+function selectPass(card, passVal) {
+    if (card.classList.contains('pass-card-off') || card.classList.contains('pass-card-full')) return;
+    document.querySelectorAll('.pass-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    document.getElementById('pass-select').value = passVal;
+    updateTarif();
+}
+
+let currentRef = '';
+
+function generateRef(passVal) {
+    const prefix = { academy: 'ACD', elite: 'ELT', public: 'PUB' }[passVal] || 'VIB';
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+    return 'VIB-' + prefix + '-' + code;
+}
+
+function copyRef() {
+    if (!currentRef) return;
+    navigator.clipboard.writeText(currentRef).then(() => {
+        const btn = document.querySelector('.pay-ref-copy');
+        btn.textContent = '✓';
+        setTimeout(() => { btn.textContent = '⧉'; }, 1800);
+    });
+}
+
+function updateTarif() { /* prix affiché directement sur les cartes de pass */ }
+
+function handleInscSubmit(e) {
+    e.preventDefault();
+    const sel = document.getElementById('pass-select');
+    if (sel && sel.value !== 'public') {
+        document.getElementById('pay-pass-label').textContent     = passLabels[sel.value];
+        document.getElementById('pay-amount-label').textContent   = tarifs[sel.value];
+        document.getElementById('wave-amount-display').textContent = tarifs[sel.value];
+        // Générer code de référence unique
+        currentRef = generateRef(sel.value);
+        document.getElementById('pay-ref-code').textContent = currentRef;
+        // Reset to Wave (default)
+        document.querySelectorAll('.pay-method-card').forEach(c => c.classList.remove('selected'));
+        document.querySelector('.pay-method-card').classList.add('selected');
+        document.querySelector('input[name="pay-method"]').checked = true;
+        document.getElementById('wave-info').style.display    = 'flex';
+        document.getElementById('pay-phone-wrapper').style.display = 'none';
+        document.getElementById('pay-confirm-btn').innerHTML  = 'PAYER AVEC WAVE &nbsp;→';
+        document.getElementById('insc-step1').style.display  = 'none';
+        document.getElementById('insc-step2').style.display  = 'block';
+    } else {
+        const btn = document.getElementById('insc-main-btn');
+        btn.textContent      = '✓ Inscription envoyée !';
+        btn.style.background = '#22c55e';
+        setTimeout(() => { btn.innerHTML = "S'INSCRIRE &nbsp;→"; btn.style.background = ''; }, 3000);
+    }
+}
+
+function selectPayMethod(card, method) {
+    document.querySelectorAll('.pay-method-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    card.querySelector('input').checked = true;
+
+    const waveInfo    = document.getElementById('wave-info');
+    const phoneWrap   = document.getElementById('pay-phone-wrapper');
+    const confirmBtn  = document.getElementById('pay-confirm-btn');
+    const phoneLabel  = document.getElementById('pay-phone-label');
+    const phoneInput  = document.getElementById('pay-phone');
+
+    if (method === 'wave') {
+        waveInfo.style.display  = 'flex';
+        phoneWrap.style.display = 'none';
+        confirmBtn.innerHTML    = 'PAYER AVEC WAVE &nbsp;→';
+    } else {
+        waveInfo.style.display  = 'none';
+        phoneWrap.style.display = 'block';
+        confirmBtn.innerHTML    = 'CONFIRMER &nbsp;→';
+        if (method === 'card') {
+            phoneLabel.textContent = 'NUMÉRO DE CARTE';
+            phoneInput.placeholder = '4242 4242 4242 4242';
+            phoneInput.type        = 'text';
+        } else {
+            phoneLabel.textContent = 'NUMÉRO DE TÉLÉPHONE';
+            phoneInput.placeholder = '+225 07 XX XX XX XX';
+            phoneInput.type        = 'tel';
+        }
+    }
+}
+
+function backToStep1() {
+    document.getElementById('insc-step2').style.display = 'none';
+    document.getElementById('insc-step1').style.display = 'block';
+}
+
+function submitPayment() {
+    const method = document.querySelector('input[name="pay-method"]:checked')?.value || 'wave';
+
+    if (method === 'wave') {
+        const passVal = document.getElementById('pass-select').value;
+        const montant = tarifsNum[passVal] || 0;
+        window.open(WAVE_URL + '?amount=' + montant, '_blank');
+        return;
+    }
+
+    const phone = document.getElementById('pay-phone');
+    if (!phone.value.trim()) { phone.focus(); return; }
+    const btn = document.getElementById('pay-confirm-btn');
+    btn.textContent      = '✓ Paiement confirmé !';
+    btn.style.background = '#22c55e';
+    setTimeout(() => {
+        btn.innerHTML        = 'CONFIRMER &nbsp;→';
+        btn.style.background = '';
+        backToStep1();
+        document.getElementById('insc-form1').reset();
+        updateTarif();
+    }, 3000);
+}
+
+/* ─── FAQ accordion ─── */
+function toggleFaq(el) {
+    const item = el.parentElement;
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+}
 
 /* ─── Mobile menu ─── */
-function openMenu() {
-    document.getElementById('mobile-menu').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
-function closeMenu() {
-    document.getElementById('mobile-menu').style.display = 'none';
-    document.body.style.overflow = '';
-}
+function openMenu()  { document.getElementById('mobile-menu').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+function closeMenu() { document.getElementById('mobile-menu').style.display = 'none';  document.body.style.overflow = ''; }
+
+/* ─── Init au chargement ─── */
+window.addEventListener('load', () => {
+    // Lire l'onglet depuis l'URL
+    const hash = location.hash.replace('#','');
+    if (hash && pages.includes(hash)) showPage(hash);
+    else showPage('accueil');
+
+    initThree();
+    initCounters();
+    triggerReveal();
+});
 </script>
 </body>
 </html>
