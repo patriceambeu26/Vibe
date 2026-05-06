@@ -671,8 +671,12 @@
            PAGE INSCRIPTION — style vibeathonci.com
         ========================================= */
         #page-inscription {
-            background: radial-gradient(ellipse at 20% 60%, rgba(13,148,136,0.3) 0%, #050d1f 40%, #020810 100%),
-                        radial-gradient(ellipse at 80% 30%, rgba(217,70,239,0.2) 0%, transparent 50%);
+            --gold: #C9A84C;
+            --gold-light: #E8C96A;
+            --gold-dark: #8B6914;
+            --dark-2: #141414;
+            --dark-3: #1c1c1c;
+            background: radial-gradient(ellipse at 35% 55%, rgba(120,80,10,0.55) 0%, #0d0a05 55%, #030303 100%);
             min-height: 100vh;
         }
 
@@ -705,7 +709,7 @@
         .insc-lamp svg {
             width: 100%;
             max-width: 280px;
-            filter: drop-shadow(0 0 40px rgba(217,70,239,0.5)) drop-shadow(0 0 80px rgba(217,70,239,0.2));
+            filter: drop-shadow(0 0 40px rgba(201,168,76,0.5)) drop-shadow(0 0 80px rgba(201,168,76,0.2));
         }
 
         @keyframes lamp-float {
@@ -718,7 +722,7 @@
             flex: 1;
             max-width: 480px;
             background: rgba(20, 16, 8, 0.82);
-            border: 1px solid rgba(217,70,239,0.12);
+            border: 1px solid rgba(201,168,76,0.12);
             border-radius: 24px;
             padding: 44px 40px;
             backdrop-filter: blur(20px);
@@ -739,7 +743,7 @@
             background: var(--gold);
             border-radius: 50%;
             margin-bottom: 32px;
-            box-shadow: 0 0 12px rgba(217,70,239,0.8);
+            box-shadow: 0 0 12px rgba(201,168,76,0.8);
         }
 
         /* Formulaire */
@@ -775,7 +779,7 @@
         .insc-input::placeholder { color: rgba(255,255,255,0.22); }
 
         .insc-input:focus {
-            border-color: rgba(217,70,239,0.45);
+            border-color: rgba(201,168,76,0.45);
             background: rgba(255,255,255,0.07);
         }
 
@@ -819,7 +823,7 @@
         .insc-btn:hover {
             background: var(--gold-light);
             transform: translateY(-2px);
-            box-shadow: 0 16px 48px rgba(217,70,239,0.45);
+            box-shadow: 0 16px 48px rgba(201,168,76,0.45);
         }
 
         .insc-btn:active { transform: translateY(0); }
@@ -1092,7 +1096,7 @@
         }
 
         .pass-card {
-            border: 1.5px solid rgba(217,70,239,0.22);
+            border: 1.5px solid rgba(201,168,76,0.22);
             border-radius: 13px;
             padding: 14px 10px 12px;
             cursor: pointer;
@@ -1102,12 +1106,12 @@
             position: relative;
         }
         .pass-card:hover:not(.pass-card-off) {
-            border-color: rgba(217,70,239,0.5);
+            border-color: rgba(201,168,76,0.5);
             transform: translateY(-2px);
         }
         .pass-card.selected {
             border-color: var(--gold);
-            background: rgba(217,70,239,0.11);
+            background: rgba(201,168,76,0.11);
         }
         .pass-card-off {
             opacity: 0.35;
@@ -1146,7 +1150,7 @@
             color: rgba(255,255,255,0.35);
         }
         .pass-tag-spots {
-            background: rgba(217,70,239,0.18);
+            background: rgba(201,168,76,0.18);
             color: var(--gold);
         }
         .pass-tag-full {
@@ -1195,7 +1199,7 @@
         .pay-method-card input[type="radio"] { display: none; }
         .pay-method-card.selected {
             border-color: var(--gold);
-            background: rgba(217,70,239,0.13);
+            background: rgba(201,168,76,0.13);
             color: var(--white);
         }
         .pay-method-icon { font-size: 1.9rem; line-height: 1; }
@@ -1246,7 +1250,7 @@
             transition: background 0.2s;
             flex-shrink: 0;
         }
-        .pay-ref-copy:hover { background: rgba(217,70,239,0.15); }
+        .pay-ref-copy:hover { background: rgba(201,168,76,0.15); }
 
         .wave-info-box {
             display: flex;
@@ -1686,24 +1690,24 @@
             <svg viewBox="0 0 220 380" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <!-- Glow -->
                 <radialGradient id="lampGlow" cx="50%" cy="52%" r="45%">
-                    <stop offset="0%" stop-color="#d946ef" stop-opacity="0.9"/>
-                    <stop offset="100%" stop-color="#d946ef" stop-opacity="0"/>
+                    <stop offset="0%" stop-color="#C9A84C" stop-opacity="0.9"/>
+                    <stop offset="100%" stop-color="#C9A84C" stop-opacity="0"/>
                 </radialGradient>
                 <ellipse cx="110" cy="190" rx="100" ry="100" fill="url(#lampGlow)" opacity="0.35"/>
                 <!-- Abat-jour -->
-                <path d="M55 80 L165 80 L140 200 L80 200 Z" fill="#d946ef"/>
+                <path d="M55 80 L165 80 L140 200 L80 200 Z" fill="#C9A84C"/>
                 <!-- Brillance intérieure -->
                 <path d="M80 85 L150 85 L135 185 L90 185 Z" fill="#E8C96A" opacity="0.4"/>
                 <ellipse cx="110" cy="160" rx="28" ry="28" fill="white" opacity="0.7" filter="blur(8px)"/>
                 <!-- Trait supérieur -->
-                <rect x="85" y="72" width="50" height="10" rx="5" fill="#6d28d9"/>
+                <rect x="85" y="72" width="50" height="10" rx="5" fill="#A07830"/>
                 <!-- Pied -->
-                <rect x="106" y="200" width="8" height="130" rx="4" fill="#6d28d9"/>
+                <rect x="106" y="200" width="8" height="130" rx="4" fill="#A07830"/>
                 <!-- Base -->
-                <ellipse cx="110" cy="330" rx="28" ry="8" fill="#6d28d9"/>
+                <ellipse cx="110" cy="330" rx="28" ry="8" fill="#A07830"/>
                 <!-- Pendule -->
-                <line x1="110" y1="290" x2="110" y2="320" stroke="#d946ef" stroke-width="2"/>
-                <circle cx="110" cy="324" r="6" fill="#d946ef"/>
+                <line x1="110" y1="290" x2="110" y2="320" stroke="#C9A84C" stroke-width="2"/>
+                <circle cx="110" cy="324" r="6" fill="#C9A84C"/>
             </svg>
         </div>
 
