@@ -7,7 +7,175 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@1,700;1,900&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js">
+    /* ============================================================
+       GITHUB-STYLE ANIMATIONS JS — Vibeathon 2026
+    ============================================================ */
+
+    /* Spotlight effect on cards */
+    function updateSpotlight(el, e) {
+        const r = el.getBoundingClientRect();
+        const x = ((e.clientX - r.left) / r.width * 100).toFixed(1);
+        const y = ((e.clientY - r.top) / r.height * 100).toFixed(1);
+        el.style.setProperty('--mx', x + '%');
+        el.style.setProperty('--my', y + '%');
+    }
+
+    /* Ripple effect on .btn-ripple buttons */
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.btn-ripple');
+        if (!btn) return;
+        const r = btn.getBoundingClientRect();
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple-el';
+        const size = Math.max(r.width, r.height);
+        ripple.style.cssText = `width:${size}px;height:${size}px;top:${e.clientY-r.top-size/2}px;left:${e.clientX-r.left-size/2}px;`;
+        btn.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 700);
+    });
+
+    /* Feature tabs switcher */
+    function switchFeatTab(idx, tabEl) {
+        document.querySelectorAll('.feat-tab').forEach(t => t.classList.remove('active'));
+        if (tabEl) tabEl.classList.add('active');
+        document.querySelectorAll('.feat-panel').forEach(p => p.classList.remove('active'));
+        const panel = document.getElementById('feat-panel-' + idx);
+        if (panel) panel.classList.add('active');
+    }
+
+    /* Hero email handler v2 */
+    function handleHeroEmailV2() {
+        const email = document.getElementById('hero-email-v2');
+        if (email && email.value) {
+            const inscEmail = document.getElementById('insc-email');
+            if (inscEmail) inscEmail.value = email.value;
+            showPage('inscription');
+        } else {
+            if (email) { email.style.borderColor = '#f78166'; email.focus(); setTimeout(() => email.style.borderColor = 'var(--border)', 1500); }
+        }
+    }
+
+    /* Extended IntersectionObserver to also handle .fade-up */
+    (function() {
+        const fuObs = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) { e.target.classList.add('visible'); fuObs.unobserve(e.target); }
+            });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        document.querySelectorAll('.fade-up').forEach(el => fuObs.observe(el));
+    })();
+
+    /* Hero terminal typewriter animation */
+    (function() {
+        const steps = [
+            { cmd: 'create-app "Market CI — achat/vente local"', delay: 60 },
+            { out1: '⚡ Génération de votre application...', delay: 30 },
+            { cmd2: 'Interface créée · Paiement Mobile Money · Déployé', delay: 40 },
+            { out2: '✓ App live → market-ci.vibeathon.app', delay: 30 }
+        ];
+
+        function typeText(el, text, speed, cb) {
+            let i = 0;
+            function next() {
+                if (i < text.length) { el.textContent += text[i++]; setTimeout(next, speed + Math.random() * 20); }
+                else if (cb) cb();
+            }
+            next();
+        }
+
+        function runTerminal() {
+            const tc1 = document.getElementById('tc1');
+            const to1 = document.getElementById('to1');
+            const tl2 = document.getElementById('tl2');
+            const tc2 = document.getElementById('tc2');
+            const to2 = document.getElementById('to2');
+            const cur = document.getElementById('tc-cursor');
+            if (!tc1) return;
+
+            tc1.textContent = ''; to1.style.display = 'none';
+            tl2.style.display = 'none'; tc2.textContent = ''; to2.style.display = 'none';
+            if (cur) cur.style.display = 'inline-block';
+
+            typeText(tc1, steps[0].cmd, 55, function() {
+                setTimeout(function() {
+                    to1.style.display = 'block'; to1.textContent = '';
+                    typeText(to1, steps[1].out1, 25, function() {
+                        setTimeout(function() {
+                            tl2.style.display = 'block'; tc2.textContent = '';
+                            typeText(tc2, steps[2].cmd2, 35, function() {
+                                setTimeout(function() {
+                                    to2.style.display = 'block'; to2.textContent = '';
+                                    typeText(to2, steps[3].out2, 30, function() {
+                                        if (cur) cur.style.display = 'none';
+                                        setTimeout(runTerminal, 4000);
+                                    });
+                                }, 400);
+                            });
+                        }, 600);
+                    });
+                }, 300);
+            });
+        }
+
+        /* Start after a short delay so DOM is ready */
+        setTimeout(runTerminal, 800);
+    })();
+
+    /* Animated chat: show typing then AI response */
+    (function() {
+        const chatBody = document.getElementById('chat-demo-body');
+        const typingEl = document.getElementById('chat-typing-indicator');
+        if (!chatBody || !typingEl) return;
+
+        function showAIReply() {
+            typingEl.style.display = 'none';
+            const reply = document.createElement('div');
+            reply.className = 'chat-msg ai';
+            reply.innerHTML = '<span class="ai-tag">VIBE ASSISTANT</span>Module facturation FCFA ajouté !<br><span style="font-size:.72rem;color:var(--green);">✓ Génération factures PDF</span><br><span style="font-size:.72rem;color:var(--green);">✓ Suivi paiements Wave/MTN</span><br><span style="font-size:.72rem;color:var(--green);">✓ TVA ivoirienne auto-calculée</span>';
+            chatBody.appendChild(reply);
+            setTimeout(function() {
+                const nextMsg = document.createElement('div');
+                nextMsg.className = 'chat-msg user';
+                nextMsg.textContent = 'Ajoute une version mobile responsive';
+                chatBody.appendChild(nextMsg);
+                typingEl.style.display = 'flex';
+                chatBody.appendChild(typingEl);
+                chatBody.scrollTop = chatBody.scrollHeight;
+                setTimeout(showAIReply2, 2800);
+            }, 2500);
+        }
+
+        function showAIReply2() {
+            typingEl.style.display = 'none';
+            const reply = document.createElement('div');
+            reply.className = 'chat-msg ai';
+            reply.innerHTML = '<span class="ai-tag">VIBE ASSISTANT</span>Version mobile déployée !<br><span style="font-size:.72rem;color:var(--green);">✓ PWA installable sur Android/iOS</span><br><span style="font-size:.72rem;color:var(--green);">✓ Mode hors-ligne activé</span>';
+            chatBody.appendChild(reply);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        setTimeout(showAIReply, 3200);
+    })();
+
+    /* Auto-switch feature tabs every 6 seconds */
+    (function() {
+        let currentTab = 0;
+        const totalTabs = 5;
+        function autoSwitch() {
+            currentTab = (currentTab + 1) % totalTabs;
+            const tabs = document.querySelectorAll('.feat-tab');
+            if (tabs[currentTab]) switchFeatTab(currentTab, tabs[currentTab]);
+        }
+        let autoTabInterval = setInterval(autoSwitch, 6000);
+        document.querySelectorAll('.feat-tab').forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                clearInterval(autoTabInterval);
+                autoTabInterval = setInterval(autoSwitch, 6000);
+            });
+        });
+    })();
+
+</script>
     <style>
 
         /* ===================================================
@@ -1154,6 +1322,155 @@
             .globe-section { padding: 56px 20px; }
         }
 
+
+        /* ============================================================
+           GITHUB-STYLE ANIMATIONS — Vibeathon 2026
+        ============================================================ */
+
+        /* Animated blobs */
+        .blob { position:absolute; border-radius:50%; filter:blur(80px); pointer-events:none; z-index:0; will-change:transform; }
+        .blob-1 { width:600px; height:600px; background:rgba(88,166,255,0.11); top:-160px; left:-120px; animation:blob-drift 18s ease-in-out infinite; }
+        .blob-2 { width:500px; height:500px; background:rgba(163,113,247,0.09); top:80px; right:-160px; animation:blob-drift 22s ease-in-out infinite reverse; animation-delay:-7s; }
+        .blob-3 { width:420px; height:420px; background:rgba(63,185,80,0.06); bottom:0; left:35%; animation:blob-drift 26s ease-in-out infinite; animation-delay:-13s; }
+        @keyframes blob-drift {
+            0%,100% { transform:translate(0,0) scale(1) rotate(0deg); }
+            25% { transform:translate(40px,-60px) scale(1.08) rotate(5deg); }
+            50% { transform:translate(-30px,50px) scale(0.94) rotate(-3deg); }
+            75% { transform:translate(60px,20px) scale(1.05) rotate(7deg); }
+        }
+
+        /* Animated gradient text */
+        .grad-animate {
+            background: linear-gradient(135deg,#58a6ff,#a371f7,#f78166,#3fb950,#58a6ff);
+            background-size: 300% 300%;
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+            animation: grad-shift 6s ease infinite;
+        }
+        @keyframes grad-shift { 0%,100%{background-position:0% 50%;} 50%{background-position:100% 50%;} }
+
+        /* Fade-up reveal */
+        .fade-up { opacity:0; transform:translateY(36px); transition:opacity .7s cubic-bezier(.4,0,.2,1), transform .7s cubic-bezier(.4,0,.2,1); }
+        .fade-up.visible { opacity:1; transform:translateY(0); }
+        .fade-up.d1 { transition-delay:.12s; }
+        .fade-up.d2 { transition-delay:.24s; }
+        .fade-up.d3 { transition-delay:.36s; }
+        .fade-up.d4 { transition-delay:.48s; }
+
+        /* Float animation */
+        @keyframes float-y { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
+        .float-anim  { animation:float-y 5s ease-in-out infinite; }
+        .float-anim.d1 { animation-delay:-.8s; }
+        .float-anim.d2 { animation-delay:-1.8s; }
+
+        /* Glow pulse */
+        @keyframes glow-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(88,166,255,0);} 50%{box-shadow:0 0 20px 6px rgba(88,166,255,.18);} }
+        .glow-pulse { animation:glow-pulse 3s ease-in-out infinite; }
+
+        /* Cursor blink */
+        @keyframes cursor-blink { 0%,100%{opacity:1} 50%{opacity:0} }
+        .cursor { display:inline-block; width:2px; height:.9em; background:var(--accent); vertical-align:text-bottom; animation:cursor-blink 1s infinite; margin-left:2px; }
+
+        /* Scroll indicator */
+        @keyframes scroll-line { 0%{opacity:0;transform:scaleY(0);transform-origin:top} 55%{opacity:1;transform:scaleY(1)} 100%{opacity:0;transform:scaleY(1);transform-origin:bottom} }
+
+        /* Ripple button */
+        .btn-ripple { position:relative; overflow:hidden; }
+        .btn-ripple .ripple-el { position:absolute; border-radius:50%; background:rgba(255,255,255,.22); transform:scale(0); animation:ripple-anim .6s ease-out forwards; pointer-events:none; }
+        @keyframes ripple-anim { to{transform:scale(4);opacity:0} }
+
+        /* Spotlight card */
+        .spotlight { background:radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(88,166,255,.055) 0%, transparent 60%); transition:background .15s; }
+
+        /* Pill badge */
+        .pill-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(88,166,255,.08); border:1px solid rgba(88,166,255,.18); border-radius:100px; padding:5px 14px; font-size:.72rem; font-weight:600; color:var(--accent); letter-spacing:.5px; }
+        .pill-badge .dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:glow-pulse 2s ease-in-out infinite; flex-shrink:0; }
+
+        /* Feature tabs */
+        .feat-tabs { display:flex; gap:3px; padding:4px; background:var(--surface); border:1px solid var(--border-soft); border-radius:10px; }
+        .feat-tab { flex:1; padding:8px 10px; border-radius:8px; font-size:.76rem; font-weight:600; color:var(--muted); cursor:pointer; transition:all .2s; text-align:center; border:1px solid transparent; }
+        .feat-tab:hover { color:var(--text); background:var(--surface-2); }
+        .feat-tab.active { color:var(--accent); background:var(--surface-2); border-color:rgba(88,166,255,.2); }
+
+        /* Feature panel */
+        .feat-panel { display:none; }
+        .feat-panel.active { display:grid; animation:fade-panel .35s ease; }
+        @keyframes fade-panel { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+        /* Terminal */
+        .vibe-terminal { background:#0d1117; border:1px solid var(--border); border-radius:10px; overflow:hidden; font-family:'SFMono-Regular',Consolas,monospace; font-size:.78rem; }
+        .vibe-term-bar { background:#161b22; border-bottom:1px solid var(--border); padding:10px 14px; display:flex; align-items:center; gap:6px; }
+        .vibe-term-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+        .vibe-term-dot.r{background:#ff5f57;} .vibe-term-dot.y{background:#ffbd2e;} .vibe-term-dot.g{background:#28c940;}
+        .vibe-term-title { font-size:.7rem; color:var(--muted); margin-left:4px; }
+        .vibe-term-body { padding:16px; line-height:1.85; min-height:200px; }
+        .term-prompt { color:var(--green); }
+        .term-cmd { color:var(--text); }
+        .term-out { color:var(--muted); }
+        .term-ai { color:var(--accent); }
+        .term-success { color:var(--green); }
+
+        /* Copilot chat */
+        .copilot-chat { background:var(--surface); border:1px solid var(--border-soft); border-radius:12px; overflow:hidden; }
+        .chat-header { background:var(--surface-2); border-bottom:1px solid var(--border-soft); padding:12px 16px; display:flex; align-items:center; gap:10px; }
+        .chat-avatar { width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,#58a6ff,#a371f7); display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:800; color:#fff; flex-shrink:0; }
+        .chat-name { font-size:.82rem; font-weight:700; color:var(--text); }
+        .chat-status { font-size:.65rem; color:var(--green); }
+        .chat-body { padding:14px; display:flex; flex-direction:column; gap:10px; min-height:220px; }
+        .chat-msg { max-width:82%; padding:10px 14px; border-radius:12px; font-size:.78rem; line-height:1.55; }
+        .chat-msg.user { background:rgba(88,166,255,.1); border:1px solid rgba(88,166,255,.2); align-self:flex-end; color:var(--text); border-radius:12px 12px 2px 12px; }
+        .chat-msg.ai { background:var(--surface-2); border:1px solid var(--border-soft); align-self:flex-start; color:var(--text); border-radius:12px 12px 12px 2px; }
+        .chat-msg.ai .ai-tag { font-size:.6rem; font-weight:700; color:var(--accent); letter-spacing:.5px; display:block; margin-bottom:5px; }
+        .chat-typing { display:flex; gap:4px; padding:10px 14px; align-self:flex-start; }
+        .chat-typing span { width:6px; height:6px; border-radius:50%; background:var(--muted); animation:chat-dot .9s ease-in-out infinite; }
+        .chat-typing span:nth-child(2){animation-delay:.2s;} .chat-typing span:nth-child(3){animation-delay:.4s;}
+        @keyframes chat-dot { 0%,100%{transform:translateY(0);opacity:.4} 50%{transform:translateY(-5px);opacity:1} }
+
+        /* Logo ticker */
+        @keyframes logo-scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+        .logos-track { animation:logo-scroll 24s linear infinite; display:flex; gap:40px; align-items:center; width:max-content; }
+        .logos-track:hover { animation-play-state:paused; }
+        .logos-section { padding:44px 0; border-top:1px solid var(--border-soft); border-bottom:1px solid var(--border-soft); overflow:hidden; }
+        .logos-header { text-align:center; font-size:.72rem; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--dim); margin-bottom:26px; }
+        .logos-overflow { overflow:hidden; mask:linear-gradient(90deg,transparent,black 14%,black 86%,transparent); -webkit-mask:linear-gradient(90deg,transparent,black 14%,black 86%,transparent); }
+        .logo-item { display:flex; flex-direction:column; align-items:center; gap:5px; opacity:.5; transition:opacity .2s; padding:0 14px; flex-shrink:0; cursor:default; }
+        .logo-item:hover { opacity:1; }
+        .logo-circle { width:46px; height:46px; border-radius:50%; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:.62rem; font-weight:800; letter-spacing:.5px; }
+        .logo-name { font-size:.58rem; color:var(--muted); font-weight:600; letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; }
+
+        /* Impact cards */
+        .impact-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+        .impact-card { background:var(--surface); border:1px solid var(--border-soft); border-radius:12px; padding:28px; transition:border-color .2s,transform .2s; cursor:default; }
+        .impact-card:hover { border-color:rgba(88,166,255,.28); transform:translateY(-4px); }
+        .impact-num { font-size:3rem; font-weight:900; letter-spacing:-2px; line-height:1; }
+        .impact-label { font-size:.8rem; color:var(--muted); margin-top:6px; }
+        .pbar-wrap { margin-top:14px; }
+        .pbar-bg { background:var(--surface-2); border-radius:100px; height:4px; overflow:hidden; }
+        .pbar-fill { height:100%; border-radius:100px; background:linear-gradient(90deg,var(--c1,#58a6ff),var(--c2,#a371f7)); transition:width 1.2s cubic-bezier(.4,0,.2,1); }
+
+        /* Big CTA */
+        .big-cta { text-align:center; padding:120px 40px; position:relative; overflow:hidden; }
+        .big-cta-blob { position:absolute; border-radius:50%; filter:blur(100px); pointer-events:none; }
+        .big-cta-title { font-size:clamp(2rem,5vw,4rem); font-weight:900; letter-spacing:-2px; line-height:1.1; margin-bottom:20px; }
+        .big-cta-sub { font-size:1rem; color:var(--muted); max-width:460px; margin:0 auto 36px; line-height:1.7; }
+        .cta-btn-large { display:inline-flex; align-items:center; gap:10px; background:var(--green-dark); color:#fff; border:none; border-radius:6px; padding:14px 28px; font-size:1rem; font-weight:700; cursor:pointer; transition:background .15s,transform .15s,box-shadow .15s; }
+        .cta-btn-large:hover { background:#2ea043; transform:translateY(-2px); box-shadow:0 8px 24px rgba(35,134,54,.28); }
+        .cta-btn-outline { display:inline-flex; align-items:center; gap:8px; background:transparent; color:var(--text); border:1px solid var(--border); border-radius:6px; padding:14px 28px; font-size:1rem; font-weight:600; cursor:pointer; transition:border-color .15s,color .15s; }
+        .cta-btn-outline:hover { border-color:var(--accent); color:var(--accent); }
+
+        /* Animated hero input */
+        .hero-email-input { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:12px 16px; font-size:.9rem; color:var(--text); outline:none; transition:border-color .15s,box-shadow .15s; width:100%; }
+        .hero-email-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(88,166,255,.12); }
+
+        /* Animated section line separator */
+        .grad-sep { height:1px; background:linear-gradient(90deg,transparent,var(--border),transparent); }
+
+        @media(max-width:900px) {
+            .impact-grid { grid-template-columns:1fr; }
+            .feat-tabs { flex-wrap:wrap; }
+            .hero-grid { grid-template-columns:1fr !important; }
+            .hero-term-col { display:none; }
+        }
+
         </style>
 </head>
 <body>
@@ -1213,389 +1530,386 @@
 ============================================================ -->
 <div class="page active" id="page-accueil">
 
-    <!-- ===== HERO — Luxury event style ===== -->
-    <div id="hero">
-        <!-- Wave decoration -->
-        <svg class="hero-wave-svg" viewBox="0 0 1440 800" fill="none" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-            <path d="M-200 520 Q150 340 450 490 Q750 640 1050 410 Q1260 280 1700 460" stroke="rgba(88,166,255,0.12)" stroke-width="1" fill="none"/>
-            <path d="M-200 570 Q150 390 450 540 Q750 690 1050 460 Q1260 330 1700 510" stroke="rgba(163,113,247,0.07)" stroke-width="1" fill="none"/>
-        </svg>
+<!-- ===== HERO ===== -->
+<section style="position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;overflow:hidden;padding:120px 40px 80px;">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
 
-        <!-- Center glow -->
-        <div class="hero-warm-glow"></div>
-
-        <!-- Main content -->
-        <div class="hero-luxury-content">
-            <h1 class="hero-display">
-                <span class="hero-display-top">Hackathon du</span>
-                <span class="hero-display-vibe">vibe coding</span>
+    <div class="hero-grid" style="position:relative;z-index:2;max-width:1200px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;">
+        <!-- Left: Text content -->
+        <div>
+            <div class="pill-badge fade-up" style="margin-bottom:24px;display:inline-flex;">
+                <span class="dot"></span>
+                CSCTICAO, Abidjan &nbsp;·&nbsp; 11 Juillet 2026
+            </div>
+            <h1 style="font-family:Inter,sans-serif;font-size:clamp(2.6rem,5.5vw,5.5rem);font-weight:900;line-height:1.05;letter-spacing:-3px;margin-bottom:24px;">
+                <span class="fade-up" style="display:block;color:var(--white);">Crée l'avenir de</span>
+                <span class="fade-up d1 grad-animate" style="display:block;">l'Afrique numérique.</span>
             </h1>
-            <p class="hero-pense">PENSE. CRÉE. LANCE.</p>
+            <p class="fade-up d2" style="font-size:1.05rem;color:var(--muted);line-height:1.75;margin-bottom:32px;max-width:480px;">
+                Le premier hackathon vibecoding de Côte d'Ivoire. 400 créateurs, 950 000 FCFA en prix — zéro ligne de code requise.
+            </p>
+            <!-- Email CTA -->
+            <div class="fade-up d3" style="display:flex;gap:10px;margin-bottom:14px;max-width:480px;">
+                <input id="hero-email-v2" type="email" placeholder="ton.email@exemple.com" class="hero-email-input" style="flex:1;">
+                <button onclick="handleHeroEmailV2()" class="btn-ripple" style="background:var(--green-dark);color:#fff;border:none;border-radius:6px;padding:12px 20px;font-size:.875rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .15s;" onmouseover="this.style.background='#2ea043'" onmouseout="this.style.background='var(--green-dark)'">S'inscrire →</button>
+            </div>
+            <div class="fade-up d4" style="display:flex;gap:16px;align-items:center;font-size:.76rem;color:var(--dim);flex-wrap:wrap;">
+                <button onclick="showPage('program')" style="background:none;border:none;color:var(--accent);font-size:.76rem;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0;">Voir le programme</button>
+                <span>·</span>
+                <span>Pass Compétiteur : 10 000 FCFA</span>
+                <span>·</span>
+                <span>Pass Auditeur disponible</span>
+            </div>
         </div>
 
-        <!-- Ticker -->
-        <div class="hero-ticker">
-            <div class="ticker-track">
-                <span>VIBEATHON 2026</span>
-                <span class="ticker-sep">·</span>
-                <span>11 JUILLET 2026</span>
-                <span class="ticker-sep">·</span>
-                <span>CSCTICAO, ABIDJAN</span>
-                <span class="ticker-sep">·</span>
-                <span>400 PARTICIPANTS</span>
-                <span class="ticker-sep">·</span>
-                <span>950 000 FCFA EN PRIX</span>
-                <span class="ticker-sep">·</span>
-                <span>INSCRIPTIONS OUVERTES</span>
-                <span class="ticker-sep">·</span>
-                <span>VIBEATHON 2026</span>
-                <span class="ticker-sep">·</span>
-                <span>11 JUILLET 2026</span>
-                <span class="ticker-sep">·</span>
-                <span>CSCTICAO, ABIDJAN</span>
-                <span class="ticker-sep">·</span>
-                <span>400 PARTICIPANTS</span>
-                <span class="ticker-sep">·</span>
-                <span>950 000 FCFA EN PRIX</span>
-                <span class="ticker-sep">·</span>
-                <span>INSCRIPTIONS OUVERTES</span>
-                <span class="ticker-sep">·</span>
+        <!-- Right: Animated terminal -->
+        <div class="hero-term-col" style="position:relative;">
+            <div class="vibe-terminal float-anim" style="position:relative;z-index:2;">
+                <div class="vibe-term-bar">
+                    <span class="vibe-term-dot r"></span><span class="vibe-term-dot y"></span><span class="vibe-term-dot g"></span>
+                    <span class="vibe-term-title">vibecoding-terminal</span>
+                    <span style="margin-left:auto;font-size:.6rem;color:var(--green);background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.2);border-radius:4px;padding:2px 8px;">● LIVE</span>
+                </div>
+                <div class="vibe-term-body" id="hero-term-body">
+                    <div><span class="term-prompt">vous@vibeathon:~$</span> <span class="term-cmd" id="tc1"></span><span class="cursor" id="tc-cursor"></span></div>
+                    <div class="term-out" id="to1" style="display:none;margin-top:4px;padding-left:2ch;"></div>
+                    <div id="tl2" style="display:none;margin-top:8px;"><span class="term-ai">IA &gt;</span> <span class="term-ai" id="tc2"></span></div>
+                    <div class="term-success" id="to2" style="display:none;margin-top:4px;padding-left:2ch;"></div>
+                </div>
+            </div>
+            <!-- Floating stat cards -->
+            <div class="float-anim d1" style="position:absolute;top:-26px;right:-18px;background:rgba(88,166,255,.1);border:1px solid rgba(88,166,255,.22);border-radius:10px;padding:10px 14px;font-size:.72rem;backdrop-filter:blur(8px);z-index:3;">
+                <div style="font-size:1.4rem;font-weight:900;color:var(--accent);">950K</div>
+                <div style="color:var(--dim);">FCFA en prix</div>
+            </div>
+            <div class="float-anim d2" style="position:absolute;bottom:-22px;left:-18px;background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.2);border-radius:10px;padding:10px 14px;font-size:.72rem;backdrop-filter:blur(8px);z-index:3;">
+                <div style="font-size:1.4rem;font-weight:900;color:var(--green);">400</div>
+                <div style="color:var(--dim);">Participants</div>
             </div>
         </div>
     </div>
 
-    <!-- ===== STATS BAND ===== -->
-    <div class="stats-band">
-        <div class="stats-grid">
-            <div class="reveal"><span class="stat-number" data-target="400">0</span><span class="stat-label">Participants</span></div>
-            <div class="reveal d1"><span class="stat-number" data-target="100">0</span><span class="stat-label">Compétiteurs</span></div>
-            <div class="reveal d2"><span class="stat-number" data-target="20">0</span><span class="stat-label">Solutions créées</span></div>
-            <div class="reveal d3"><span class="stat-number" data-target="3">0</span><span class="stat-label">Lauréats incubés</span></div>
-            <div class="reveal d4"><span class="stat-number" data-target="950" data-suffix="K">0</span><span class="stat-label">FCFA en prix</span></div>
+    <!-- Scroll indicator -->
+    <div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:5px;opacity:.35;">
+        <div style="font-size:.6rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Scroll</div>
+        <div style="width:1px;height:28px;background:linear-gradient(to bottom,var(--accent),transparent);animation:scroll-line 2s ease-in-out infinite;"></div>
+    </div>
+</section>
+
+<!-- ===== STATS BAND ===== -->
+<div class="stats-band">
+    <div class="stats-grid">
+        <div class="reveal"><span class="stat-number" data-target="400">0</span><span class="stat-label">Participants</span></div>
+        <div class="reveal d1"><span class="stat-number" data-target="100">0</span><span class="stat-label">Compétiteurs</span></div>
+        <div class="reveal d2"><span class="stat-number" data-target="20">0</span><span class="stat-label">Solutions créées</span></div>
+        <div class="reveal d3"><span class="stat-number" data-target="3">0</span><span class="stat-label">Lauréats incubés</span></div>
+        <div class="reveal d4"><span class="stat-number" data-target="950" data-suffix="K">0</span><span class="stat-label">FCFA en prix</span></div>
+    </div>
+</div>
+
+<!-- ===== PARTNER LOGOS TICKER ===== -->
+<div class="logos-section">
+    <div class="logos-header">Ils soutiennent le mouvement</div>
+    <div class="logos-overflow">
+        <div class="logos-track">
+            <div class="logo-item"><div class="logo-circle" style="color:var(--accent);">CO</div><div class="logo-name">CREATIV'O</div></div>
+            <div class="logo-item"><div class="logo-circle" style="color:var(--purple);">CX</div><div class="logo-name">CREATIVX</div></div>
+            <div class="logo-item"><div class="logo-circle" style="color:var(--green);">RI</div><div class="logo-name">RIT-AFRICA</div></div>
+            <div class="logo-item"><div class="logo-circle" style="color:var(--orange);">AN</div><div class="logo-name">AFRINOVATECH</div></div>
+            <div class="logo-item"><div class="logo-circle" style="color:var(--accent);">AE</div><div class="logo-name">AE TECH</div></div>
+            <div class="logo-item"><div class="logo-circle" style="color:#e3b341;">CI</div><div class="logo-name">CSCTICAO</div></div>
+            <div class="logo-item"><div class="logo-circle" style="color:var(--muted);">AI</div><div class="logo-name">ABIDJAN IA</div></div>
+            <div class="logo-item"><div class="logo-circle" style="color:var(--green);">TH</div><div class="logo-name">TECH HUB CI</div></div>
+            <!-- Duplicate for infinite scroll -->
+            <div class="logo-item"><div class="logo-circle" style="color:var(--accent);">CO</div><div class="logo-name">CREATIV'O</div></div>
+            <div class="logo-item"><div class="logo-circle" style="color:var(--purple);">CX</div><div class="logo-name">CREATIVX</div></div>
+            <div class="logo-item"><div class="logo-circle" style="color:var(--green);">RI</div><div class="logo-name">RIT-AFRICA</div></div>
+            <div class="logo-item"><div class="logo-circle" style="color:var(--orange);">AN</div><div class="logo-name">AFRINOVATECH</div></div>
+            <div class="logo-item"><div class="logo-circle" style="color:var(--accent);">AE</div><div class="logo-name">AE TECH</div></div>
+            <div class="logo-item"><div class="logo-circle" style="color:#e3b341;">CI</div><div class="logo-name">CSCTICAO</div></div>
+            <div class="logo-item"><div class="logo-circle" style="color:var(--muted);">AI</div><div class="logo-name">ABIDJAN IA</div></div>
+            <div class="logo-item"><div class="logo-circle" style="color:var(--green);">TH</div><div class="logo-name">TECH HUB CI</div></div>
         </div>
     </div>
+</div>
 
-
-    <!-- ===== FEATURE 1 : VIBECODING (GitHub Copilot section) ===== -->
-    <section class="gh-section">
-        <div class="gh-section-inner">
-            <div class="gh-section-text reveal">
-                <span class="gh-eyebrow" style="color:var(--purple);">VIBECODING</span>
-                <h2 class="gh-section-title">Crée sans coder,<br><span style="background:linear-gradient(135deg,#a371f7,#58a6ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">avec l'intelligence artificielle.</span></h2>
-                <p class="gh-section-body">ChatGPT, Cursor, Bolt, Lovable — des outils qui transforment tes idées en vraies applications. Pas besoin d'être développeur. Juste ta créativité et quelques prompts.</p>
-                <div class="gh-feature-items">
-                    <div class="gh-feature-item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="#3fb950" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="10" stroke="#3fb950" stroke-width="1.5"/></svg>
-                        Aucun prérequis technique requis
+<!-- ===== VIBECODING DEMO SECTION — GitHub Copilot equivalent ===== -->
+<section style="padding:96px 40px;">
+    <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;" class="hero-grid">
+        <!-- Left: Chat demo -->
+        <div class="fade-up">
+            <div class="copilot-chat spotlight" onmousemove="updateSpotlight(this,event)">
+                <div class="chat-header">
+                    <div class="chat-avatar">V</div>
+                    <div>
+                        <div class="chat-name">Vibe Assistant IA</div>
+                        <div class="chat-status">● en ligne</div>
                     </div>
-                    <div class="gh-feature-item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="#3fb950" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="10" stroke="#3fb950" stroke-width="1.5"/></svg>
-                        Formation pratique sur les meilleurs outils IA
-                    </div>
-                    <div class="gh-feature-item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="#3fb950" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="10" stroke="#3fb950" stroke-width="1.5"/></svg>
-                        Crée une app complète en quelques heures
-                    </div>
+                    <span style="margin-left:auto;font-size:.65rem;background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.18);border-radius:4px;padding:3px 8px;color:var(--accent);">Vibecoding</span>
                 </div>
-                <button class="gh-section-link" onclick="showPage('about')">En savoir plus sur le vibecoding <span>→</span></button>
-            </div>
-            <div class="gh-section-visual reveal d1">
-                <div class="gh-terminal">
-                    <div class="gh-terminal-bar">
-                        <span class="t-dot t-red"></span>
-                        <span class="t-dot t-yellow"></span>
-                        <span class="t-dot t-green"></span>
-                        <span class="t-bar-title">prompt → application</span>
+                <div class="chat-body" id="chat-demo-body">
+                    <div class="chat-msg user">Crée-moi une app de gestion des finances pour les PME ivoiriennes</div>
+                    <div class="chat-msg ai">
+                        <span class="ai-tag">VIBE ASSISTANT</span>
+                        Je génère ton application complète...<br>
+                        <span style="font-size:.72rem;color:var(--green);">✓ Dashboard finances créé</span><br>
+                        <span style="font-size:.72rem;color:var(--green);">✓ Suivi des dépenses ajouté</span><br>
+                        <span style="font-size:.72rem;color:var(--green);">✓ Rapports automatiques configurés</span>
                     </div>
-                    <div class="gh-terminal-body">
-                        <div class="t-line"><span class="t-prompt">›</span>&nbsp;<span class="t-cmd">Crée une app de gestion de candidatures</span></div>
-                        <div class="t-line t-comment"># Analyse du prompt en cours...</div>
-                        <div class="t-line t-out"><span class="t-green-txt">✓</span>&nbsp;Interface générée (47 composants)</div>
-                        <div class="t-line t-out"><span class="t-green-txt">✓</span>&nbsp;Base de données configurée</div>
-                        <div class="t-line t-out"><span class="t-green-txt">✓</span>&nbsp;Application déployée en ligne</div>
-                        <div class="t-line t-spacer"></div>
-                        <div class="t-line"><span class="t-prompt">›</span>&nbsp;<span class="t-cursor">█</span></div>
-                    </div>
-                    <div class="gh-terminal-footer">
-                        <span class="t-badge t-badge-purple">Vibecoding</span>
-                        <span class="t-badge t-badge-green">3.2s</span>
-                        <span class="t-stats">0 lignes de code &nbsp;·&nbsp; 1 prompt</span>
+                    <div class="chat-msg user">Ajoute un module de facturation en FCFA</div>
+                    <div class="chat-typing" id="chat-typing-indicator">
+                        <span></span><span></span><span></span>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
 
+        <!-- Right: Text -->
+        <div class="fade-up d1">
+            <span class="gh-eyebrow" style="color:var(--purple);">LE VIBECODING</span>
+            <h2 class="gh-section-title" style="font-size:clamp(1.8rem,3.5vw,3rem);margin:14px 0;">Décris. <span style="background:linear-gradient(135deg,#58a6ff,#a371f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">L'IA construit.</span></h2>
+            <p class="gh-section-body" style="margin-bottom:24px;">Plus besoin de coder pendant des années. Avec les outils IA modernes, tu décris ton idée en français et l'IA génère l'application complète — code, design, déploiement inclus.</p>
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:28px;padding:0;">
+                <li style="display:flex;gap:10px;font-size:.875rem;color:var(--muted);"><span style="color:var(--green);font-weight:700;flex-shrink:0;">✓</span> ChatGPT, Cursor, Bolt, Lovable, Replit</li>
+                <li style="display:flex;gap:10px;font-size:.875rem;color:var(--muted);"><span style="color:var(--green);font-weight:700;flex-shrink:0;">✓</span> Zéro ligne de code écrite manuellement</li>
+                <li style="display:flex;gap:10px;font-size:.875rem;color:var(--muted);"><span style="color:var(--green);font-weight:700;flex-shrink:0;">✓</span> Bootcamp 3 jours avant l'événement inclus</li>
+                <li style="display:flex;gap:10px;font-size:.875rem;color:var(--muted);"><span style="color:var(--green);font-weight:700;flex-shrink:0;">✓</span> Formation le matin du hackathon</li>
+            </ul>
+            <button onclick="showPage('about')" class="btn-secondary">En savoir plus sur le vibecoding →</button>
+        </div>
+    </div>
+</section>
 
-    <!-- ===== FEATURE 2 : COMPÉTITION (GitHub collaboration section) ===== -->
-    <section class="gh-section gh-section-dark">
-        <div class="gh-section-inner gh-section-reverse">
-            <div class="gh-section-text reveal d1">
-                <span class="gh-eyebrow" style="color:var(--orange);">COMPÉTITION</span>
-                <h2 class="gh-section-title">Compétis pour<br><span style="background:linear-gradient(135deg,#e3b341,#f78166);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">950 000 FCFA.</span></h2>
-                <p class="gh-section-body">20 équipes de 5 personnes s'affrontent pour créer la meilleure solution numérique. Pitch devant le jury, innovation, impact réel — tout ça sans écrire une ligne de code.</p>
-                <div class="gh-feature-items">
-                    <div class="gh-feature-item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="#3fb950" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="10" stroke="#3fb950" stroke-width="1.5"/></svg>
-                        20 équipes · 5 personnes par équipe
+<div class="grad-sep"></div>
+
+<!-- ===== FEATURE TABS — GitHub "Code Plan Collaborate" equivalent ===== -->
+<section style="padding:80px 40px;background:linear-gradient(180deg,var(--surface) 0%,var(--bg) 100%);border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft);">
+    <div style="max-width:1200px;margin:0 auto;">
+        <div style="text-align:center;margin-bottom:40px;" class="fade-up">
+            <span class="gh-eyebrow" style="color:var(--accent);">VOTRE PARCOURS</span>
+            <h2 class="gh-section-title" style="font-size:clamp(1.8rem,3.5vw,2.8rem);margin-top:12px;">Tout ce dont tu as besoin,<br><span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">en une seule journée.</span></h2>
+        </div>
+
+        <div class="feat-tabs fade-up d1" style="max-width:700px;margin:0 auto 32px;" id="feat-tabs-el">
+            <div class="feat-tab active" onclick="switchFeatTab(0,this)">S'inscrire</div>
+            <div class="feat-tab" onclick="switchFeatTab(1,this)">Se Former</div>
+            <div class="feat-tab" onclick="switchFeatTab(2,this)">Compétition</div>
+            <div class="feat-tab" onclick="switchFeatTab(3,this)">Pitcher</div>
+            <div class="feat-tab" onclick="switchFeatTab(4,this)">Gagner</div>
+        </div>
+
+        <!-- Panel 0: S'inscrire -->
+        <div id="feat-panel-0" class="feat-panel active" style="grid-template-columns:1fr 1fr;gap:48px;align-items:start;">
+            <div>
+                <h3 style="font-size:1.4rem;font-weight:800;margin-bottom:12px;color:var(--white);">Choisis ton pass</h3>
+                <p style="color:var(--muted);margin-bottom:20px;font-size:.875rem;line-height:1.7;">Deux options pour participer. Academy pour compétir et se former, Elite pour une expérience VIP complète.</p>
+                <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+                    <div style="background:var(--bg);border:1px solid rgba(88,166,255,.25);border-radius:8px;padding:14px;display:flex;justify-content:space-between;align-items:center;">
+                        <div><div style="font-weight:700;font-size:.875rem;">Vibe Academy</div><div style="font-size:.7rem;color:var(--dim);">Compétition + Formation complète</div></div>
+                        <div style="font-size:1.1rem;font-weight:900;color:var(--accent);">10 000 FCFA</div>
                     </div>
-                    <div class="gh-feature-item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="#3fb950" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="10" stroke="#3fb950" stroke-width="1.5"/></svg>
-                        3h30 de développement intensif (14h – 17h30)
-                    </div>
-                    <div class="gh-feature-item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="#3fb950" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="10" stroke="#3fb950" stroke-width="1.5"/></svg>
-                        Pitch des 10 finalistes devant jury et public
+                    <div style="background:var(--bg);border:1px solid rgba(163,113,247,.25);border-radius:8px;padding:14px;display:flex;justify-content:space-between;align-items:center;">
+                        <div><div style="font-weight:700;font-size:.875rem;">Vibe Elite</div><div style="font-size:.7rem;color:var(--dim);">VIP + Networking + Extras exclusifs</div></div>
+                        <div style="font-size:1.1rem;font-weight:900;color:var(--purple);">20 000 FCFA</div>
                     </div>
                 </div>
-                <button class="gh-section-link" onclick="showPage('activities')">Voir les activités <span>→</span></button>
+                <button onclick="showPage('inscription')" class="btn-primary" style="width:100%;">Réserver ma place →</button>
             </div>
-            <div class="gh-section-visual reveal">
-                <div class="gh-cards-visual">
-                    <div class="gh-act-card-gh">
-                        <div class="gh-card-header">
-                            <svg width="14" height="14" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="#e3b341"/></svg>
-                            <span class="gh-card-label">Compétition principale</span>
-                            <span class="gh-card-prize">950 000 FCFA</span>
-                        </div>
-                        <div class="gh-card-title">Compétition Vibecoding</div>
-                        <div class="gh-card-desc">20 équipes · 3h30 · Pitch devant le jury</div>
-                        <div class="gh-card-prizes">
-                            <div class="gh-prize-row">
-                                <span class="gh-prize-rank">#1</span>
-                                <span class="gh-prize-amt">500 000 FCFA</span>
-                            </div>
-                            <div class="gh-prize-row">
-                                <span class="gh-prize-rank">#2</span>
-                                <span class="gh-prize-amt">300 000 FCFA</span>
-                            </div>
-                            <div class="gh-prize-row">
-                                <span class="gh-prize-rank">#3</span>
-                                <span class="gh-prize-amt">150 000 FCFA</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gh-act-card-gh gh-act-card-sm">
-                        <div class="gh-card-label-sm">Ateliers IA</div>
-                        <div class="gh-card-title-sm">Formation pratique vibecoding</div>
-                        <div class="gh-card-meta"><span class="gh-dot gh-dot-blue"></span> ChatGPT &nbsp;·&nbsp; Cursor &nbsp;·&nbsp; Bolt &nbsp;·&nbsp; Lovable</div>
-                    </div>
-                    <div class="gh-act-card-gh gh-act-card-sm">
-                        <div class="gh-card-label-sm">Studios IA</div>
-                        <div class="gh-card-title-sm">Photo IA & Musique IA</div>
-                        <div class="gh-card-meta"><span class="gh-dot gh-dot-purple"></span> Expérience immersive toute la journée</div>
-                    </div>
+            <div style="background:var(--bg);border:1px solid var(--border-soft);border-radius:12px;padding:24px;">
+                <div style="font-size:.62rem;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;">Process d'inscription</div>
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                    <div style="display:flex;gap:12px;align-items:center;"><div style="width:26px;height:26px;border-radius:50%;background:var(--green-dark);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800;flex-shrink:0;">1</div><span style="font-size:.82rem;color:var(--text);">Remplis le formulaire en ligne</span></div>
+                    <div style="display:flex;gap:12px;align-items:center;"><div style="width:26px;height:26px;border-radius:50%;background:var(--accent-dark);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800;flex-shrink:0;">2</div><span style="font-size:.82rem;color:var(--text);">Paie ton pass — Wave, Orange Money ou MTN</span></div>
+                    <div style="display:flex;gap:12px;align-items:center;"><div style="width:26px;height:26px;border-radius:50%;background:var(--purple);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800;flex-shrink:0;">3</div><span style="font-size:.82rem;color:var(--text);">Reçois ta confirmation et ton code d'accès</span></div>
+                    <div style="display:flex;gap:12px;align-items:center;"><div style="width:26px;height:26px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:800;flex-shrink:0;">4</div><span style="font-size:.82rem;color:var(--text);">Participe au Bootcamp pré-événement 3 jours</span></div>
                 </div>
             </div>
         </div>
-    </section>
 
-
-    <!-- ===== FEATURE 3 : PROGRAMME (GitHub security section) ===== -->
-    <section class="gh-section">
-        <div class="gh-section-inner">
-            <div class="gh-section-text reveal">
-                <span class="gh-eyebrow" style="color:var(--green);">PROGRAMME</span>
-                <h2 class="gh-section-title">La journée<br><span style="background:linear-gradient(135deg,#3fb950,#39d353);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">du 11 Juillet.</span></h2>
-                <p class="gh-section-body">De 7h30 à 19h30 — une journée complète de formation, d'inspiration et de compétition. Chaque moment pensé pour maximiser votre apprentissage et votre expérience IA.</p>
-                <div class="gh-feature-items">
-                    <div class="gh-feature-item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="#3fb950" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="10" stroke="#3fb950" stroke-width="1.5"/></svg>
-                        Keynotes & panels avec des experts africains
-                    </div>
-                    <div class="gh-feature-item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="#3fb950" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="10" stroke="#3fb950" stroke-width="1.5"/></svg>
-                        Ateliers pratiques sur les outils IA génératifs
-                    </div>
-                    <div class="gh-feature-item">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="#3fb950" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="10" stroke="#3fb950" stroke-width="1.5"/></svg>
-                        Networking, studios IA, remise des prix
-                    </div>
+        <!-- Panel 1: Se Former -->
+        <div id="feat-panel-1" class="feat-panel" style="grid-template-columns:1fr 1fr;gap:48px;align-items:center;">
+            <div>
+                <h3 style="font-size:1.4rem;font-weight:800;margin-bottom:12px;color:var(--white);">Formation complète incluse</h3>
+                <p style="color:var(--muted);margin-bottom:20px;font-size:.875rem;line-height:1.7;">Bootcamp 3 jours avant l'événement + sessions le matin du hackathon. Du débutant absolu au confirmé, tout le monde est formé.</p>
+                <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:20px;">
+                    <div style="display:flex;gap:10px;font-size:.82rem;align-items:center;"><span style="color:var(--purple);">●</span> ChatGPT &amp; Prompt Engineering avancé</div>
+                    <div style="display:flex;gap:10px;font-size:.82rem;align-items:center;"><span style="color:var(--accent);">●</span> Cursor &amp; Bolt — prototypage en minutes</div>
+                    <div style="display:flex;gap:10px;font-size:.82rem;align-items:center;"><span style="color:var(--green);">●</span> Lovable &amp; Replit — déploiement instantané</div>
+                    <div style="display:flex;gap:10px;font-size:.82rem;align-items:center;"><span style="color:var(--orange);">●</span> Pitch &amp; présentation de projet</div>
                 </div>
-                <button class="gh-section-link" onclick="showPage('program')">Programme complet <span>→</span></button>
             </div>
-            <div class="gh-section-visual reveal d1">
-                <div class="gh-timeline">
-                    <div class="gh-tl-item">
-                        <div class="gh-tl-time">07h30</div>
-                        <div class="gh-tl-dot gh-tl-dot-green"></div>
-                        <div class="gh-tl-content">
-                            <div class="gh-tl-title">Accueil &amp; Enregistrement</div>
-                            <div class="gh-tl-desc">Installation des participants, remise des kits</div>
-                        </div>
-                    </div>
-                    <div class="gh-tl-item">
-                        <div class="gh-tl-time">09h00</div>
-                        <div class="gh-tl-dot gh-tl-dot-purple"></div>
-                        <div class="gh-tl-content">
-                            <div class="gh-tl-title">Cérémonie d'ouverture</div>
-                            <div class="gh-tl-desc">Discours officiels, présentation du Vibeathon</div>
-                        </div>
-                    </div>
-                    <div class="gh-tl-item">
-                        <div class="gh-tl-time">09h30</div>
-                        <div class="gh-tl-dot gh-tl-dot-blue"></div>
-                        <div class="gh-tl-content">
-                            <div class="gh-tl-title">Keynotes &amp; Panel IA</div>
-                            <div class="gh-tl-desc">Experts tech et entrepreneurs africains</div>
-                        </div>
-                    </div>
-                    <div class="gh-tl-item">
-                        <div class="gh-tl-time">11h00</div>
-                        <div class="gh-tl-dot gh-tl-dot-blue"></div>
-                        <div class="gh-tl-content">
-                            <div class="gh-tl-title">Ateliers de Formation</div>
-                            <div class="gh-tl-desc">ChatGPT, Cursor, Bolt, Lovable — pratique</div>
-                        </div>
-                    </div>
-                    <div class="gh-tl-item">
-                        <div class="gh-tl-time">14h00</div>
-                        <div class="gh-tl-dot gh-tl-dot-orange"></div>
-                        <div class="gh-tl-content">
-                            <div class="gh-tl-title">Compétition Vibecoding</div>
-                            <div class="gh-tl-desc">3h30 de création intensive — 20 équipes</div>
-                        </div>
-                    </div>
-                    <div class="gh-tl-item">
-                        <div class="gh-tl-time">17h30</div>
-                        <div class="gh-tl-dot gh-tl-dot-orange"></div>
-                        <div class="gh-tl-content">
-                            <div class="gh-tl-title">Pitches &amp; Délibération</div>
-                            <div class="gh-tl-desc">10 finalistes devant le jury et le public</div>
-                        </div>
-                    </div>
-                    <div class="gh-tl-item">
-                        <div class="gh-tl-time">19h00</div>
-                        <div class="gh-tl-dot gh-tl-dot-green"></div>
-                        <div class="gh-tl-content">
-                            <div class="gh-tl-title">Cérémonie de Clôture</div>
-                            <div class="gh-tl-desc">Remise des prix — 950 000 FCFA</div>
-                        </div>
-                    </div>
+            <div class="vibe-terminal">
+                <div class="vibe-term-bar">
+                    <span class="vibe-term-dot r"></span><span class="vibe-term-dot y"></span><span class="vibe-term-dot g"></span>
+                    <span class="vibe-term-title">bootcamp-session.sh</span>
+                </div>
+                <div class="vibe-term-body">
+                    <div><span class="term-prompt">$</span> <span class="term-cmd">bolt new "app de livraison alimentaire CI"</span></div>
+                    <div class="term-out" style="margin-top:6px;">⚡ Génération en cours...</div>
+                    <div class="term-out"><span style="color:var(--green);">✓</span> Interface créée — 12 écrans</div>
+                    <div class="term-out"><span style="color:var(--green);">✓</span> Base de données configurée</div>
+                    <div class="term-out"><span style="color:var(--green);">✓</span> API paiement Mobile Money intégrée</div>
+                    <div class="term-out"><span style="color:var(--green);">✓</span> Déployé → app.bolt.new/vibeathon-ci</div>
+                    <div style="margin-top:10px;"><span class="term-prompt">$</span> <span class="cursor"></span></div>
                 </div>
             </div>
         </div>
-    </section>
 
-
-    <!-- ===== FEATURE 4 : CONTEXTE (GitHub scale section) ===== -->
-    <section class="gh-section gh-section-dark">
-        <div class="gh-section-inner">
-            <div class="gh-section-visual reveal">
-                <div class="gh-cards-visual">
-                    <div class="gh-act-card-gh">
-                        <div class="gh-card-label-sm" style="margin-bottom:8px;">Challenge 01</div>
-                        <div class="gh-card-title">Accès limité à la formation IA</div>
-                        <div class="gh-card-desc" style="margin-bottom:0;">Peu de formations pratiques à l'IA disponibles localement pour le grand public ivoirien.</div>
-                    </div>
-                    <div class="gh-act-card-gh">
-                        <div class="gh-card-label-sm" style="margin-bottom:8px;">Challenge 02</div>
-                        <div class="gh-card-title">IA perçue comme élitiste</div>
-                        <div class="gh-card-desc" style="margin-bottom:0;">Réservée aux ingénieurs — une barrière psychologique qui freine l'adoption locale.</div>
-                    </div>
-                    <div class="gh-act-card-gh">
-                        <div class="gh-card-label-sm" style="margin-bottom:8px;">Notre réponse</div>
-                        <div class="gh-card-title" style="color:var(--accent);">Démocratiser l'IA</div>
-                        <div class="gh-card-meta" style="margin-top:6px;flex-wrap:wrap;gap:6px 12px;">
-                            <span><span class="gh-dot gh-dot-green" style="display:inline-block;margin-right:4px;vertical-align:middle;"></span>Former</span>
-                            <span><span class="gh-dot gh-dot-blue" style="display:inline-block;margin-right:4px;vertical-align:middle;"></span>Créer</span>
-                            <span><span class="gh-dot gh-dot-purple" style="display:inline-block;margin-right:4px;vertical-align:middle;"></span>Innover</span>
-                        </div>
-                    </div>
+        <!-- Panel 2: Compétition -->
+        <div id="feat-panel-2" class="feat-panel" style="grid-template-columns:1fr 1fr;gap:48px;align-items:center;">
+            <div>
+                <h3 style="font-size:1.4rem;font-weight:800;margin-bottom:12px;color:var(--white);">4 heures de création intense</h3>
+                <p style="color:var(--muted);margin-bottom:20px;font-size:.875rem;line-height:1.7;">20 équipes de 5 personnes. 4 heures pour concevoir et déployer une solution numérique complète — sans écrire une seule ligne de code.</p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+                    <div style="background:var(--bg);border:1px solid var(--border-soft);border-radius:8px;padding:12px;text-align:center;"><div style="font-size:1.8rem;font-weight:900;color:var(--orange);">20</div><div style="font-size:.68rem;color:var(--dim);">Équipes</div></div>
+                    <div style="background:var(--bg);border:1px solid var(--border-soft);border-radius:8px;padding:12px;text-align:center;"><div style="font-size:1.8rem;font-weight:900;color:var(--accent);">5</div><div style="font-size:.68rem;color:var(--dim);">Par équipe</div></div>
+                    <div style="background:var(--bg);border:1px solid var(--border-soft);border-radius:8px;padding:12px;text-align:center;"><div style="font-size:1.8rem;font-weight:900;color:var(--purple);">4h</div><div style="font-size:.68rem;color:var(--dim);">Compétition</div></div>
+                    <div style="background:var(--bg);border:1px solid var(--border-soft);border-radius:8px;padding:12px;text-align:center;"><div style="font-size:1.8rem;font-weight:900;color:var(--green);">10</div><div style="font-size:.68rem;color:var(--dim);">Équipes finalistes</div></div>
                 </div>
             </div>
-            <div class="gh-section-text reveal d1">
-                <span class="gh-eyebrow" style="color:var(--accent);">CONTEXTE</span>
-                <h2 class="gh-section-title">L'IA comme levier<br><span style="background:linear-gradient(135deg,#58a6ff,#a371f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">pour la Côte d'Ivoire.</span></h2>
-                <p class="gh-section-body">L'intelligence artificielle redéfinit l'économie mondiale. Pourtant, en Afrique subsaharienne, son adoption reste freinée par des obstacles structurels — accès limité, perception élitiste, manque de projets concrets.</p>
-                <p class="gh-section-body" style="margin-top:-12px;">Le Vibeathon est la réponse : un espace concret d'initiation, d'expérimentation et de compétition ouvert à tous.</p>
-                <button class="gh-section-link" onclick="showPage('context')">Lire le contexte <span>→</span></button>
-            </div>
-        </div>
-    </section>
-
-
-    
-    <!-- ===== GLOBE SECTION ===== -->
-    <section class="globe-section">
-        <div class="globe-section-inner">
-            <div class="globe-text-side reveal">
-                <span class="gh-eyebrow" style="color:var(--accent);">L'IA POUR TOUS</span>
-                <h2 class="gh-section-title">Côte d'Ivoire,<br><span style="background:linear-gradient(135deg,#58a6ff,#a371f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">au cœur de la révolution IA.</span></h2>
-                <p class="gh-section-body">Abidjan rejoint le mouvement mondial du vibecoding. Le 11 Juillet 2026, 400 participants ivoiriens montrent que l'Afrique peut aussi mener la révolution de l'intelligence artificielle.</p>
-                <div class="globe-stats reveal d1">
-                    <div class="globe-stat">
-                        <div class="globe-stat-num">400</div>
-                        <div class="globe-stat-lbl">Participants</div>
-                    </div>
-                    <div class="globe-stat">
-                        <div class="globe-stat-num">20</div>
-                        <div class="globe-stat-lbl">Équipes</div>
-                    </div>
-                    <div class="globe-stat">
-                        <div class="globe-stat-num">950K</div>
-                        <div class="globe-stat-lbl">FCFA en prix</div>
-                    </div>
-                    <div class="globe-stat">
-                        <div class="globe-stat-num">1</div>
-                        <div class="globe-stat-lbl">Journée</div>
-                    </div>
-                </div>
-            </div>
-            <div class="reveal d1">
-                <div class="globe-wrap">
-                    <div class="globe-ring-2"></div>
-                    <div class="globe-ring"></div>
-                    <div class="globe-sphere">
-                        <div class="globe-grid"></div>
-                        <div class="globe-dot" style="top:38%;left:48%;"></div>
-                        <div class="globe-dot" style="top:52%;left:60%;"></div>
-                        <div class="globe-dot" style="top:44%;left:37%;"></div>
-                        <div class="globe-dot" style="top:30%;left:56%;"></div>
-                        <div class="globe-dot" style="top:60%;left:43%;"></div>
-                        <div class="globe-dot" style="top:35%;left:52%;"></div>
-                    </div>
+            <div style="background:var(--bg);border:1px solid var(--border-soft);border-radius:12px;padding:20px;">
+                <div style="font-size:.62rem;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;">Critères d'évaluation</div>
+                <div style="display:flex;flex-direction:column;gap:12px;">
+                    <div><div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:5px;"><span>Impact social</span><span style="color:var(--orange);font-weight:700;">30%</span></div><div class="pbar-bg"><div class="pbar-fill" style="--c1:#e3b341;--c2:#f78166;width:30%;"></div></div></div>
+                    <div><div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:5px;"><span>Faisabilité</span><span style="color:var(--accent);font-weight:700;">20%</span></div><div class="pbar-bg"><div class="pbar-fill" style="width:20%;"></div></div></div>
+                    <div><div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:5px;"><span>Usage de l'IA</span><span style="color:var(--purple);font-weight:700;">20%</span></div><div class="pbar-bg"><div class="pbar-fill" style="--c1:#a371f7;--c2:#58a6ff;width:20%;"></div></div></div>
+                    <div><div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:5px;"><span>Innovation</span><span style="color:var(--green);font-weight:700;">15%</span></div><div class="pbar-bg"><div class="pbar-fill" style="--c1:#3fb950;--c2:#39d353;width:15%;"></div></div></div>
+                    <div><div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:5px;"><span>Qualité du pitch</span><span style="color:var(--muted);font-weight:700;">15%</span></div><div class="pbar-bg"><div class="pbar-fill" style="--c1:#8b949e;--c2:#6e7681;width:15%;"></div></div></div>
                 </div>
             </div>
         </div>
-    </section>
 
-
-    <!-- ===== JOIN / CTA SECTION (GitHub "Join millions" style) ===== -->
-    <section class="gh-join-section">
-        <div class="gh-join-inner reveal">
-            <span class="gh-join-eyebrow">CÔTE D'IVOIRE &nbsp;·&nbsp; 2026</span>
-            <h2 class="gh-join-title">Rejoins <span>400 créateurs</span><br>le 11 Juillet.</h2>
-            <p class="gh-join-subtitle">Sans coder. Sans barrière. Juste ta créativité et l'intelligence artificielle.</p>
-            <div class="gh-join-actions">
-                <button class="btn-primary" onclick="showPage('inscription')" style="font-size:1rem;padding:14px 36px;">S'inscrire maintenant</button>
-                <button class="btn-secondary" onclick="showPage('activities')" style="font-size:1rem;padding:14px 36px;">Voir les activités</button>
+        <!-- Panel 3: Pitcher -->
+        <div id="feat-panel-3" class="feat-panel" style="grid-template-columns:1fr 1fr;gap:48px;align-items:start;">
+            <div>
+                <h3 style="font-size:1.4rem;font-weight:800;margin-bottom:12px;color:var(--white);">Présente ta solution</h3>
+                <p style="color:var(--muted);margin-bottom:20px;font-size:.875rem;line-height:1.7;">Les 10 meilleures équipes pitchent devant un jury de professionnels et 400 personnes. 5 minutes pour convaincre et marquer les esprits.</p>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <div style="background:var(--bg);border:1px solid var(--border-soft);border-radius:8px;padding:12px;display:flex;gap:12px;align-items:center;"><div style="font-size:1.4rem;">⏱</div><div><div style="font-size:.82rem;font-weight:700;">5 min pitch + Q&amp;A</div><div style="font-size:.68rem;color:var(--dim);">Format structuré et cronométré</div></div></div>
+                    <div style="background:var(--bg);border:1px solid var(--border-soft);border-radius:8px;padding:12px;display:flex;gap:12px;align-items:center;"><div style="font-size:1.4rem;">👥</div><div><div style="font-size:.82rem;font-weight:700;">Jury d'experts</div><div style="font-size:.68rem;color:var(--dim);">Entrepreneurs, investisseurs, tech leaders</div></div></div>
+                    <div style="background:var(--bg);border:1px solid var(--border-soft);border-radius:8px;padding:12px;display:flex;gap:12px;align-items:center;"><div style="font-size:1.4rem;">📡</div><div><div style="font-size:.82rem;font-weight:700;">Diffusion live</div><div style="font-size:.68rem;color:var(--dim);">Streamé sur les réseaux sociaux</div></div></div>
+                </div>
             </div>
-            <div class="gh-join-context">
-                <span>Samedi 11 Juillet 2026</span>
-                <span>·</span>
-                <span>CSCTICAO, Abidjan</span>
-                <span>·</span>
-                <span>400 PARTICIPANTS</span>
-                <span>·</span>
-                <span>Pass Auditeur Gratuit</span>
+            <div style="background:var(--bg);border:1px solid var(--border-soft);border-radius:12px;padding:20px;">
+                <div style="font-size:.62rem;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;">Programme pitches · 17h30–19h00</div>
+                <div style="display:flex;flex-direction:column;gap:6px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:.78rem;padding:8px 10px;background:rgba(88,166,255,.04);border-radius:6px;"><span style="color:var(--muted);">17h30</span><span>Présentation Top 10</span></div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:.78rem;padding:8px 10px;"><span style="color:var(--muted);">18h45</span><span>Délibération jury</span></div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:.78rem;padding:8px 10px;background:rgba(63,185,80,.05);border-radius:6px;border:1px solid rgba(63,185,80,.1);"><span style="color:var(--muted);">19h00</span><span style="color:var(--green);font-weight:700;">🏆 Remise des prix</span></div>
+                </div>
             </div>
         </div>
-    </section>
 
-    <footer>
-        <div class="footer-bottom">
-            <span class="footer-logo">VIBEATHON 2026</span>
-            <span>© 2026 Vibeathon Côte d'Ivoire. Organisé par CREATIV'O · CREATIVX · RIT-AFRICA · AFRINOVATECH &nbsp;·&nbsp; <a href="https://vibeathonci.com" style="color:var(--accent);text-decoration:none;">vibeathonci.com</a></span>
+        <!-- Panel 4: Gagner -->
+        <div id="feat-panel-4" class="feat-panel" style="grid-template-columns:1fr 1fr;gap:48px;align-items:start;">
+            <div>
+                <h3 style="font-size:1.4rem;font-weight:800;margin-bottom:12px;color:var(--white);">Plus que des prix en espèces</h3>
+                <p style="color:var(--muted);margin-bottom:20px;font-size:.875rem;line-height:1.7;">Le Vibeathon offre un accompagnement complet. Les lauréats bénéficient d'un programme d'incubation pour lancer leur projet sur le marché.</p>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    <div style="background:rgba(88,166,255,.05);border:1px solid rgba(88,166,255,.18);border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:.82rem;">🥇 1er prix</span><span style="font-weight:800;color:var(--white);">500 000 FCFA</span></div>
+                    <div style="background:var(--bg);border:1px solid var(--border-soft);border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:.82rem;">🥈 2e prix</span><span style="font-weight:800;color:var(--white);">300 000 FCFA</span></div>
+                    <div style="background:var(--bg);border:1px solid var(--border-soft);border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:.82rem;">🥉 3e prix</span><span style="font-weight:800;color:var(--white);">150 000 FCFA</span></div>
+                    <div style="background:rgba(163,113,247,.05);border:1px solid rgba(163,113,247,.18);border-radius:8px;padding:10px 12px;font-size:.78rem;"><span style="color:var(--purple);">🚀</span> <strong>5 finalistes</strong> — 30 jours d'accompagnement</div>
+                    <div style="background:rgba(63,185,80,.05);border:1px solid rgba(63,185,80,.18);border-radius:8px;padding:10px 12px;font-size:.78rem;"><span style="color:var(--green);">🏭</span> <strong>3 lauréats</strong> — 90 jours d'incubation + Démo Day</div>
+                </div>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--border-soft);border-radius:12px;padding:28px;text-align:center;">
+                <div style="font-size:3.8rem;font-weight:900;color:var(--orange);letter-spacing:-2px;">950K</div>
+                <div style="font-size:.82rem;color:var(--muted);margin-top:4px;">FCFA en prix monétaires</div>
+                <div style="height:1px;background:var(--border-soft);margin:20px 0;"></div>
+                <div style="font-size:.75rem;color:var(--dim);line-height:1.8;">+ 90j incubation (3 lauréats)<br>+ 30j accompagnement (5 finalistes)<br>+ Invitation Démo Day investisseurs</div>
+            </div>
         </div>
-    </footer>
+    </div>
+</section>
+
+<!-- ===== IMPACT METRICS ===== -->
+<section style="padding:96px 40px;background:var(--bg);">
+    <div style="max-width:1200px;margin:0 auto;">
+        <div style="text-align:center;margin-bottom:48px;" class="fade-up">
+            <span class="gh-eyebrow" style="color:var(--green);">IMPACT 2026</span>
+            <h2 class="gh-section-title" style="font-size:clamp(1.8rem,3.5vw,2.8rem);margin-top:12px;">Des chiffres qui <span style="background:linear-gradient(135deg,#3fb950,#39d353);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">parlent d'eux-mêmes.</span></h2>
+        </div>
+        <div class="impact-grid">
+            <div class="impact-card spotlight reveal" onmousemove="updateSpotlight(this,event)">
+                <div class="impact-num grad-animate">400</div>
+                <div class="impact-label">Participants attendus</div>
+                <div class="pbar-wrap"><div class="pbar-bg"><div class="pbar-fill" style="width:80%;"></div></div></div>
+                <p style="font-size:.75rem;color:var(--dim);margin-top:10px;line-height:1.6;">Étudiants, entrepreneurs, professionnels et créatifs réunis en un lieu.</p>
+            </div>
+            <div class="impact-card spotlight reveal d1" onmousemove="updateSpotlight(this,event)">
+                <div class="impact-num" style="color:var(--orange);">950K</div>
+                <div class="impact-label">FCFA en prix</div>
+                <div class="pbar-wrap"><div class="pbar-bg"><div class="pbar-fill" style="width:95%;--c1:#e3b341;--c2:#f78166;"></div></div></div>
+                <p style="font-size:.75rem;color:var(--dim);margin-top:10px;line-height:1.6;">Répartis en 3 prix monétaires + accompagnement + incubation.</p>
+            </div>
+            <div class="impact-card spotlight reveal d2" onmousemove="updateSpotlight(this,event)">
+                <div class="impact-num" style="color:var(--purple);">90j</div>
+                <div class="impact-label">Incubation pour les lauréats</div>
+                <div class="pbar-wrap"><div class="pbar-bg"><div class="pbar-fill" style="width:90%;--c1:#a371f7;--c2:#58a6ff;"></div></div></div>
+                <p style="font-size:.75rem;color:var(--dim);margin-top:10px;line-height:1.6;">Programme structuré pour accélérer les 3 meilleurs projets ivoiriens.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== GLOBE SECTION ===== -->
+<section class="globe-section">
+    <div class="globe-section-inner">
+        <div class="globe-text fade-up">
+            <span class="gh-eyebrow" style="color:var(--accent);">L'IA POUR TOUS</span>
+            <h2 class="gh-section-title">Côte d'Ivoire,<br><span style="background:linear-gradient(135deg,#58a6ff,#a371f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">au cœur de la révolution IA.</span></h2>
+            <p class="gh-section-body">Abidjan rejoint le mouvement mondial du vibecoding. Le 11 Juillet 2026, 400 participants ivoiriens montrent que l'Afrique peut mener la révolution de l'intelligence artificielle.</p>
+            <div class="globe-stats reveal d1">
+                <div class="globe-stat"><div class="globe-stat-num">400</div><div class="globe-stat-lbl">Participants</div></div>
+                <div class="globe-stat"><div class="globe-stat-num">1</div><div class="globe-stat-lbl">Jour</div></div>
+                <div class="globe-stat"><div class="globe-stat-num">∞</div><div class="globe-stat-lbl">Impact</div></div>
+            </div>
+        </div>
+        <div class="globe-visual reveal d2">
+            <div class="globe-wrap">
+                <div class="globe-sphere"><div class="globe-grid"></div><div class="globe-dot-ci"></div></div>
+                <div class="globe-ring globe-ring-1"></div>
+                <div class="globe-ring globe-ring-2"></div>
+                <div class="globe-pin-ci"><span>📍 ABJ</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== BIG CTA ===== -->
+<section class="big-cta">
+    <div class="big-cta-blob" style="width:500px;height:500px;background:rgba(88,166,255,.07);top:-100px;left:-100px;animation:blob-drift 20s ease-in-out infinite;"></div>
+    <div class="big-cta-blob" style="width:400px;height:400px;background:rgba(163,113,247,.05);bottom:-80px;right:-80px;animation:blob-drift 24s ease-in-out infinite reverse;"></div>
+    <div style="position:relative;z-index:2;">
+        <div class="pill-badge reveal" style="display:inline-flex;margin-bottom:24px;">
+            <span class="dot"></span>
+            Places limitées &nbsp;·&nbsp; 11 Juillet 2026
+        </div>
+        <h2 class="big-cta-title reveal d1">Rejoins <span class="grad-animate">400 créateurs</span><br>le 11 Juillet.</h2>
+        <p class="big-cta-sub reveal d2">Sans coder. Sans barrière. Juste ta créativité et l'intelligence artificielle. CSCTICAO, Abidjan.</p>
+        <div class="reveal d3" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+            <button onclick="showPage('inscription')" class="cta-btn-large btn-ripple">S'inscrire maintenant</button>
+            <button onclick="showPage('program')" class="cta-btn-outline">Voir le programme →</button>
+        </div>
+        <div class="reveal d4" style="display:flex;gap:16px;justify-content:center;margin-top:20px;font-size:.75rem;color:var(--dim);flex-wrap:wrap;">
+            <span>CSCTICAO, Abidjan</span><span>·</span><span>400 participants</span><span>·</span><span>Pass Auditeur Gratuit</span>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="footer-bottom">
+        <span class="footer-logo">VIBEATHON 2026</span>
+        <span>© 2026 Vibeathon Côte d'Ivoire. Organisé par CREATIV'O · CREATIVX · RIT-AFRICA · AFRINOVATECH &nbsp;·&nbsp; <a href="https://vibeathonci.com" style="color:var(--accent);text-decoration:none;">vibeathonci.com</a></span>
+    </div>
+</footer>
 </div>
 
 
 
-<!-- ============================================================
-     PAGE : À PROPOS
-============================================================ -->
 <div class="page" id="page-about">
 
     <!-- Page Hero -->
@@ -2897,8 +3211,177 @@ window.addEventListener('load', () => {
     initCounters();
     triggerReveal();
 });
+
+    /* ============================================================
+       GITHUB-STYLE ANIMATIONS JS — Vibeathon 2026
+    ============================================================ */
+
+    /* Spotlight effect on cards */
+    function updateSpotlight(el, e) {
+        const r = el.getBoundingClientRect();
+        const x = ((e.clientX - r.left) / r.width * 100).toFixed(1);
+        const y = ((e.clientY - r.top) / r.height * 100).toFixed(1);
+        el.style.setProperty('--mx', x + '%');
+        el.style.setProperty('--my', y + '%');
+    }
+
+    /* Ripple effect on .btn-ripple buttons */
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.btn-ripple');
+        if (!btn) return;
+        const r = btn.getBoundingClientRect();
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple-el';
+        const size = Math.max(r.width, r.height);
+        ripple.style.cssText = `width:${size}px;height:${size}px;top:${e.clientY-r.top-size/2}px;left:${e.clientX-r.left-size/2}px;`;
+        btn.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 700);
+    });
+
+    /* Feature tabs switcher */
+    function switchFeatTab(idx, tabEl) {
+        document.querySelectorAll('.feat-tab').forEach(t => t.classList.remove('active'));
+        if (tabEl) tabEl.classList.add('active');
+        document.querySelectorAll('.feat-panel').forEach(p => p.classList.remove('active'));
+        const panel = document.getElementById('feat-panel-' + idx);
+        if (panel) panel.classList.add('active');
+    }
+
+    /* Hero email handler v2 */
+    function handleHeroEmailV2() {
+        const email = document.getElementById('hero-email-v2');
+        if (email && email.value) {
+            const inscEmail = document.getElementById('insc-email');
+            if (inscEmail) inscEmail.value = email.value;
+            showPage('inscription');
+        } else {
+            if (email) { email.style.borderColor = '#f78166'; email.focus(); setTimeout(() => email.style.borderColor = 'var(--border)', 1500); }
+        }
+    }
+
+    /* Extended IntersectionObserver to also handle .fade-up */
+    (function() {
+        const fuObs = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) { e.target.classList.add('visible'); fuObs.unobserve(e.target); }
+            });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        document.querySelectorAll('.fade-up').forEach(el => fuObs.observe(el));
+    })();
+
+    /* Hero terminal typewriter animation */
+    (function() {
+        const steps = [
+            { cmd: 'create-app "Market CI — achat/vente local"', delay: 60 },
+            { out1: '⚡ Génération de votre application...', delay: 30 },
+            { cmd2: 'Interface créée · Paiement Mobile Money · Déployé', delay: 40 },
+            { out2: '✓ App live → market-ci.vibeathon.app', delay: 30 }
+        ];
+
+        function typeText(el, text, speed, cb) {
+            let i = 0;
+            function next() {
+                if (i < text.length) { el.textContent += text[i++]; setTimeout(next, speed + Math.random() * 20); }
+                else if (cb) cb();
+            }
+            next();
+        }
+
+        function runTerminal() {
+            const tc1 = document.getElementById('tc1');
+            const to1 = document.getElementById('to1');
+            const tl2 = document.getElementById('tl2');
+            const tc2 = document.getElementById('tc2');
+            const to2 = document.getElementById('to2');
+            const cur = document.getElementById('tc-cursor');
+            if (!tc1) return;
+
+            tc1.textContent = ''; to1.style.display = 'none';
+            tl2.style.display = 'none'; tc2.textContent = ''; to2.style.display = 'none';
+            if (cur) cur.style.display = 'inline-block';
+
+            typeText(tc1, steps[0].cmd, 55, function() {
+                setTimeout(function() {
+                    to1.style.display = 'block'; to1.textContent = '';
+                    typeText(to1, steps[1].out1, 25, function() {
+                        setTimeout(function() {
+                            tl2.style.display = 'block'; tc2.textContent = '';
+                            typeText(tc2, steps[2].cmd2, 35, function() {
+                                setTimeout(function() {
+                                    to2.style.display = 'block'; to2.textContent = '';
+                                    typeText(to2, steps[3].out2, 30, function() {
+                                        if (cur) cur.style.display = 'none';
+                                        setTimeout(runTerminal, 4000);
+                                    });
+                                }, 400);
+                            });
+                        }, 600);
+                    });
+                }, 300);
+            });
+        }
+
+        /* Start after a short delay so DOM is ready */
+        setTimeout(runTerminal, 800);
+    })();
+
+    /* Animated chat: show typing then AI response */
+    (function() {
+        const chatBody = document.getElementById('chat-demo-body');
+        const typingEl = document.getElementById('chat-typing-indicator');
+        if (!chatBody || !typingEl) return;
+
+        function showAIReply() {
+            typingEl.style.display = 'none';
+            const reply = document.createElement('div');
+            reply.className = 'chat-msg ai';
+            reply.innerHTML = '<span class="ai-tag">VIBE ASSISTANT</span>Module facturation FCFA ajouté !<br><span style="font-size:.72rem;color:var(--green);">✓ Génération factures PDF</span><br><span style="font-size:.72rem;color:var(--green);">✓ Suivi paiements Wave/MTN</span><br><span style="font-size:.72rem;color:var(--green);">✓ TVA ivoirienne auto-calculée</span>';
+            chatBody.appendChild(reply);
+            setTimeout(function() {
+                const nextMsg = document.createElement('div');
+                nextMsg.className = 'chat-msg user';
+                nextMsg.textContent = 'Ajoute une version mobile responsive';
+                chatBody.appendChild(nextMsg);
+                typingEl.style.display = 'flex';
+                chatBody.appendChild(typingEl);
+                chatBody.scrollTop = chatBody.scrollHeight;
+                setTimeout(showAIReply2, 2800);
+            }, 2500);
+        }
+
+        function showAIReply2() {
+            typingEl.style.display = 'none';
+            const reply = document.createElement('div');
+            reply.className = 'chat-msg ai';
+            reply.innerHTML = '<span class="ai-tag">VIBE ASSISTANT</span>Version mobile déployée !<br><span style="font-size:.72rem;color:var(--green);">✓ PWA installable sur Android/iOS</span><br><span style="font-size:.72rem;color:var(--green);">✓ Mode hors-ligne activé</span>';
+            chatBody.appendChild(reply);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        setTimeout(showAIReply, 3200);
+    })();
+
+    /* Auto-switch feature tabs every 6 seconds */
+    (function() {
+        let currentTab = 0;
+        const totalTabs = 5;
+        function autoSwitch() {
+            currentTab = (currentTab + 1) % totalTabs;
+            const tabs = document.querySelectorAll('.feat-tab');
+            if (tabs[currentTab]) switchFeatTab(currentTab, tabs[currentTab]);
+        }
+        let autoTabInterval = setInterval(autoSwitch, 6000);
+        document.querySelectorAll('.feat-tab').forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                clearInterval(autoTabInterval);
+                autoTabInterval = setInterval(autoSwitch, 6000);
+            });
+        });
+    })();
+
 </script>
 </body>
 </html>
+
 
 
