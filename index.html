@@ -398,6 +398,86 @@
         });
     })();
 
+
+    /* ============================================================
+       PHOTO ANIMATIONS JS — Vibeathon 2026
+    ============================================================ */
+
+    /* Gallery items stagger reveal */
+    (function() {
+        var gObs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (!entry.isIntersecting) return;
+                gObs.unobserve(entry.target);
+                var items = entry.target.querySelectorAll('.gallery-item');
+                items.forEach(function(item, i) {
+                    setTimeout(function() { item.classList.add('visible'); }, i * 100);
+                });
+                var wall = entry.target.querySelectorAll('.photo-wall-item');
+                wall.forEach(function(item, i) {
+                    setTimeout(function() { item.style.opacity = '1'; item.style.transform = 'translateY(0)'; }, i * 80 + 200);
+                });
+            });
+        }, { threshold: 0.15 });
+        var gallery = document.getElementById('gallery-grid');
+        if (gallery) gObs.observe(gallery.closest('.gallery-wrap') || gallery);
+    })();
+
+    /* Photo wall initial state */
+    (function() {
+        document.querySelectorAll('.photo-wall-item').forEach(function(el) {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity .5s ease, transform .5s ease';
+        });
+    })();
+
+    /* Photo reveal sweep — wipe animation on scroll */
+    (function() {
+        var rObs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    setTimeout(function() { entry.target.classList.add('wipe-done'); }, 100);
+                    rObs.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.25 });
+        document.querySelectorAll('.photo-reveal').forEach(function(el) { rObs.observe(el); });
+    })();
+
+    /* Parallax strip scroll effect */
+    (function() {
+        var strip = document.getElementById('parallax-strip-bg-1');
+        if (!strip) return;
+        function updateParallaxStrip() {
+            var section = document.getElementById('parallax-strip-1');
+            if (!section) return;
+            var rect = section.getBoundingClientRect();
+            var progress = -rect.top / (rect.height + window.innerHeight);
+            var offset = progress * 80;
+            strip.style.transform = 'translateY(' + offset.toFixed(1) + 'px)';
+        }
+        window.addEventListener('scroll', updateParallaxStrip, { passive: true });
+        updateParallaxStrip();
+    })();
+
+    /* Hero photo background subtle parallax */
+    (function() {
+        var heroBg = document.querySelector('.hero-photo-bg img');
+        if (!heroBg) return;
+        window.addEventListener('scroll', function() {
+            var offset = window.scrollY * 0.3;
+            heroBg.style.transform = 'scale(1.09) translateY(' + offset.toFixed(1) + 'px)';
+        }, { passive: true });
+    })();
+
+    /* Add tilt-card to new photo cards */
+    (function() {
+        document.querySelectorAll('.photo-card, .photo-frame').forEach(function(el) {
+            if (!el.classList.contains('tilt-card')) el.classList.add('tilt-card');
+        });
+    })();
+
 </script>
     <style>
 
@@ -1820,6 +1900,134 @@
         @keyframes char-drop { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
         .char-anim span { display: inline-block; animation: char-drop .5s cubic-bezier(.34,1.56,.64,1) both; }
 
+
+        /* ============================================================
+           REAL ANIMATED PHOTOS — Vibeathon 2026
+        ============================================================ */
+
+        /* Ken Burns hero background photo */
+        @keyframes ken-burns-1 { 0%{transform:scale(1) translate(0,0)} 100%{transform:scale(1.09) translate(-2%,-1%)} }
+        @keyframes ken-burns-2 { 0%{transform:scale(1.09) translate(-2%,-1%)} 100%{transform:scale(1) translate(0,0)} }
+        .hero-photo-bg {
+            position:absolute; inset:0; z-index:0; overflow:hidden;
+        }
+        .hero-photo-bg img {
+            width:100%; height:100%; object-fit:cover; object-position:center;
+            animation:ken-burns-1 18s ease-out infinite alternate;
+            opacity:.22;
+        }
+        .hero-photo-overlay {
+            position:absolute; inset:0; z-index:1;
+            background:linear-gradient(180deg, rgba(13,17,23,.55) 0%, rgba(13,17,23,.45) 40%, rgba(13,17,23,.88) 100%);
+        }
+
+        /* Photo card — hover zoom + caption reveal */
+        .photo-card {
+            position:relative; overflow:hidden; border-radius:12px; cursor:pointer;
+            background:var(--surface); border:1px solid var(--border-soft);
+        }
+        .photo-card img {
+            width:100%; height:100%; object-fit:cover; display:block;
+            transition:transform .65s cubic-bezier(.4,0,.2,1);
+        }
+        .photo-card:hover img { transform:scale(1.07); }
+        .photo-card-caption {
+            position:absolute; inset:0;
+            background:linear-gradient(to top, rgba(13,17,23,.92) 0%, rgba(13,17,23,.3) 55%, transparent 100%);
+            display:flex; flex-direction:column; justify-content:flex-end; padding:16px;
+            opacity:0; transition:opacity .35s ease;
+        }
+        .photo-card:hover .photo-card-caption { opacity:1; }
+        .photo-card-tag { font-size:.6rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--accent); margin-bottom:4px; }
+        .photo-card-label { font-size:.82rem; font-weight:700; color:#fff; line-height:1.3; }
+
+        /* Photo reveal sweep (wipe from left) */
+        .photo-reveal { position:relative; overflow:hidden; border-radius:12px; }
+        .photo-reveal::after {
+            content:''; position:absolute; inset:0; z-index:2;
+            background:var(--bg); transform-origin:right; transform:scaleX(1);
+            transition:transform .85s cubic-bezier(.77,0,.175,1);
+        }
+        .photo-reveal.wipe-done::after { transform:scaleX(0); }
+
+        /* Gallery grid */
+        .gallery-section { padding:80px 40px; background:var(--bg); }
+        .gallery-wrap { max-width:1200px; margin:0 auto; }
+        .gallery-header { margin-bottom:40px; }
+        .gallery-grid { display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:auto auto; gap:14px; }
+        .gallery-item { opacity:0; transform:translateY(28px); transition:opacity .55s ease, transform .55s ease; }
+        .gallery-item.visible { opacity:1; transform:translateY(0); }
+        .gallery-item:nth-child(1) { transition-delay:.00s; grid-row:span 2; }
+        .gallery-item:nth-child(2) { transition-delay:.08s; }
+        .gallery-item:nth-child(3) { transition-delay:.16s; }
+        .gallery-item:nth-child(4) { transition-delay:.24s; grid-column:span 2; }
+
+        /* Full-width parallax photo strip */
+        .parallax-strip {
+            position:relative; height:420px; overflow:hidden;
+            display:flex; align-items:center; justify-content:center;
+        }
+        .parallax-strip-bg {
+            position:absolute; inset:-80px 0; z-index:0;
+            background-size:cover; background-position:center;
+        }
+        .parallax-strip-overlay {
+            position:absolute; inset:0; z-index:1;
+            background:linear-gradient(135deg, rgba(13,17,23,.82) 0%, rgba(13,17,23,.55) 50%, rgba(13,17,23,.82) 100%);
+        }
+        .parallax-strip-content { position:relative; z-index:2; text-align:center; color:#fff; padding:40px; max-width:700px; }
+        .parallax-strip-content h2 { font-size:clamp(1.6rem,3.5vw,2.8rem); font-weight:900; letter-spacing:-1.5px; line-height:1.15; margin-bottom:12px; }
+        .parallax-strip-content p { font-size:1rem; color:rgba(255,255,255,.7); line-height:1.7; }
+
+        /* Photo frame with gradient border */
+        .photo-frame {
+            position:relative; border-radius:14px;
+            box-shadow:0 28px 80px rgba(0,0,0,.45), 0 0 0 1px rgba(88,166,255,.12);
+        }
+        .photo-frame img { width:100%; border-radius:14px; display:block; object-fit:cover; }
+        .photo-frame-badge {
+            position:absolute; bottom:16px; left:16px; right:16px;
+            background:rgba(13,17,23,.88); backdrop-filter:blur(12px);
+            border:1px solid rgba(255,255,255,.08); border-radius:10px; padding:12px 14px;
+            display:flex; align-items:center; gap:10px;
+        }
+        .photo-frame-badge-dot { width:8px; height:8px; border-radius:50%; background:var(--green); animation:live-pulse 2s ease-in-out infinite; flex-shrink:0; }
+        .photo-frame-badge-text { font-size:.75rem; font-weight:600; color:#fff; }
+        .photo-frame-badge-sub { font-size:.65rem; color:rgba(255,255,255,.5); }
+
+        /* Floating decorative image elements */
+        .photo-deco-stack { position:relative; }
+        .photo-deco-stack .photo-main { position:relative; z-index:2; border-radius:14px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.4); }
+        .photo-deco-stack .photo-main img { width:100%; display:block; object-fit:cover; transition:transform .5s ease; }
+        .photo-deco-stack:hover .photo-main img { transform:scale(1.03); }
+        .photo-deco-stack .photo-accent {
+            position:absolute; width:48%; bottom:-20px; right:-20px; z-index:3;
+            border-radius:10px; overflow:hidden;
+            box-shadow:0 10px 30px rgba(0,0,0,.5), 0 0 0 1px rgba(88,166,255,.18);
+            animation:float-y 5s ease-in-out infinite;
+        }
+        .photo-deco-stack .photo-accent img { width:100%; display:block; object-fit:cover; }
+        .photo-deco-stack .photo-stat-badge {
+            position:absolute; top:-12px; left:-12px; z-index:4;
+            background:rgba(13,17,23,.92); backdrop-filter:blur(10px);
+            border:1px solid rgba(88,166,255,.2); border-radius:10px; padding:10px 14px;
+            animation:float-y 6s ease-in-out infinite; animation-delay:-.8s;
+        }
+
+        /* Masonry-style photo wall */
+        .photo-wall { display:grid; gap:10px; grid-template-columns:repeat(4,1fr); }
+        .photo-wall-item { overflow:hidden; border-radius:8px; }
+        .photo-wall-item img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .5s ease, filter .3s ease; filter:grayscale(20%); }
+        .photo-wall-item:hover img { transform:scale(1.06); filter:grayscale(0%); }
+        .photo-wall-item:nth-child(1) { grid-row:span 2; }
+        .photo-wall-item:nth-child(4) { grid-row:span 2; }
+
+        @media(max-width:900px) {
+            .gallery-grid { grid-template-columns:1fr 1fr; }
+            .photo-wall { grid-template-columns:1fr 1fr; }
+            .photo-deco-stack .photo-accent { display:none; }
+        }
+
         </style>
 </head>
 <body>
@@ -1885,6 +2093,7 @@
     <div class="blob blob-2"></div>
     <div class="blob blob-3"></div>
 
+    <div class="hero-photo-bg"><img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=1600&q=75&auto=format&fit=crop" alt="Hackathon" loading="eager"><div class="hero-photo-overlay"></div></div>
     <div class="hero-grid" style="position:relative;z-index:2;max-width:1200px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;">
         <!-- Left: Text content -->
         <div>
@@ -1983,6 +2192,78 @@
         </div>
     </div>
 </div>
+
+<!-- ===== PHOTO GALLERY — Hackathon en images ===== -->
+<section class="gallery-section">
+    <div class="gallery-wrap">
+        <div class="gallery-header fade-up">
+            <span class="gh-eyebrow" style="color:var(--accent);">L'ÉVÉNEMENT EN IMAGES</span>
+            <h2 class="gh-section-title" style="font-size:clamp(1.6rem,3vw,2.4rem);margin-top:10px;">Ce qui t'attend<br><span style="background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">le 11 Juillet.</span></h2>
+        </div>
+
+        <div class="gallery-grid" id="gallery-grid">
+
+            <!-- Large left — Hackathon crowd -->
+            <div class="gallery-item photo-card photo-reveal tilt-card" style="height:380px;">
+                <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80&auto=format&fit=crop" alt="Tech event audience" loading="lazy">
+                <div class="photo-card-caption">
+                    <span class="photo-card-tag">Événement</span>
+                    <span class="photo-card-label">400 participants réunis pour changer l'avenir</span>
+                </div>
+            </div>
+
+            <!-- Top right — Team coding -->
+            <div class="gallery-item photo-card photo-reveal tilt-card" style="height:182px;">
+                <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80&auto=format&fit=crop" alt="Team working together" loading="lazy">
+                <div class="photo-card-caption">
+                    <span class="photo-card-tag">Équipes</span>
+                    <span class="photo-card-label">20 équipes, 5 personnes chacune</span>
+                </div>
+            </div>
+
+            <!-- Middle right — Coding on laptop -->
+            <div class="gallery-item photo-card photo-reveal tilt-card" style="height:182px;">
+                <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&q=80&auto=format&fit=crop" alt="Coding on laptop" loading="lazy">
+                <div class="photo-card-caption">
+                    <span class="photo-card-tag">Vibecoding</span>
+                    <span class="photo-card-label">Crée avec l'IA, sans écrire de code</span>
+                </div>
+            </div>
+
+            <!-- Bottom — Women in tech + Presentation (col-span 2) -->
+            <div class="gallery-item photo-card photo-reveal tilt-card" style="height:170px;">
+                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&q=80&auto=format&fit=crop" alt="Women in tech" loading="lazy">
+                <div class="photo-card-caption">
+                    <span class="photo-card-tag">Inclusivité</span>
+                    <span class="photo-card-label">Tous les profils bienvenus</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Second row: photo wall -->
+        <div class="photo-wall" style="margin-top:14px;" id="photo-wall">
+            <div class="photo-wall-item" style="height:200px;">
+                <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=400&q=80&auto=format&fit=crop" alt="Young tech professionals" loading="lazy">
+            </div>
+            <div class="photo-wall-item" style="height:100px;">
+                <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=400&q=80&auto=format&fit=crop" alt="Hackathon workspace" loading="lazy">
+            </div>
+            <div class="photo-wall-item" style="height:100px;">
+                <img src="https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=400&q=80&auto=format&fit=crop" alt="Conference presentation" loading="lazy">
+            </div>
+            <div class="photo-wall-item" style="height:200px;">
+                <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=400&q=80&auto=format&fit=crop" alt="AI technology" loading="lazy">
+            </div>
+            <div class="photo-wall-item" style="height:100px;">
+                <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&q=80&auto=format&fit=crop" alt="Mobile payment Africa" loading="lazy">
+            </div>
+            <div class="photo-wall-item" style="height:100px;">
+                <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=400&q=80&auto=format&fit=crop" alt="Startup team" loading="lazy">
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- ===== VIBECODING DEMO SECTION — GitHub Copilot equivalent ===== -->
 <section style="padding:96px 40px;">
@@ -2170,6 +2451,98 @@
                 <div style="height:1px;background:var(--border-soft);margin:20px 0;"></div>
                 <div style="font-size:.75rem;color:var(--dim);line-height:1.8;">+ 90j incubation (3 lauréats)<br>+ 30j accompagnement (5 finalistes)<br>+ Invitation Démo Day investisseurs</div>
             </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ===== PARALLAX PHOTO STRIP ===== -->
+<div class="parallax-strip" id="parallax-strip-1">
+    <div class="parallax-strip-bg" id="parallax-strip-bg-1" style="background-image:url('https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?w=1400&q=80&auto=format&fit=crop');"></div>
+    <div class="parallax-strip-overlay"></div>
+    <div class="parallax-strip-content reveal">
+        <span class="pill-badge" style="margin-bottom:20px;display:inline-flex;"><span class="dot"></span>11 Juillet 2026 · Abidjan</span>
+        <h2>Une journée pour changer<br><span class="squig-wrap grad-animate">l'histoire</span> de la tech ivoirienne.</h2>
+        <p style="margin-top:14px;">CSCTICAO, Abidjan · 400 participants · 950 000 FCFA en prix · Bootcamp 3 jours inclus</p>
+        <button onclick="showPage('inscription')" class="cta-btn-large btn-ripple" style="margin-top:24px;">Rejoindre le mouvement</button>
+    </div>
+</div>
+
+<!-- ===== PHOTO + TEXT SECTION — "La scène tech ivoirienne" ===== -->
+<section style="padding:96px 40px;background:var(--bg);">
+    <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;" class="hero-grid">
+
+        <!-- Photo deco stack left -->
+        <div class="photo-deco-stack fade-up" style="padding:20px 30px 40px 0;">
+            <div class="photo-main" style="height:380px;">
+                <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=700&q=80&auto=format&fit=crop" alt="Young African tech professionals" style="height:380px;">
+            </div>
+            <div class="photo-accent" style="height:200px;">
+                <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=400&q=80&auto=format&fit=crop" alt="Hackathon coding" style="height:200px;">
+            </div>
+            <div class="photo-stat-badge">
+                <div style="font-size:1.6rem;font-weight:900;color:var(--accent);line-height:1;">400</div>
+                <div style="font-size:.65rem;color:var(--muted);margin-top:2px;">Participants</div>
+            </div>
+        </div>
+
+        <!-- Text right -->
+        <div class="fade-up d1">
+            <span class="gh-eyebrow" style="color:var(--accent);">LA SCÈNE TECH IVOIRIENNE</span>
+            <h2 class="gh-section-title" style="font-size:clamp(1.6rem,3.2vw,2.6rem);margin:14px 0;">La Côte d'Ivoire<br>prend sa place dans <span class="squig-wrap" style="background:linear-gradient(135deg,#58a6ff,#a371f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">la révolution IA.</span></h2>
+            <p class="gh-section-body" style="margin-bottom:20px;">Abidjan est déjà un hub numérique africain. Le Vibeathon 2026 amplifie ce mouvement : il donne à chaque Ivoirien les outils pour créer avec l'intelligence artificielle — sans barrière technique.</p>
+            <ul class="stagger-list" style="list-style:none;padding:0;display:flex;flex-direction:column;gap:12px;margin-bottom:28px;">
+                <li style="display:flex;gap:12px;align-items:flex-start;font-size:.875rem;color:var(--muted);"><span style="color:var(--green);font-weight:700;flex-shrink:0;margin-top:2px;">✓</span><span><strong style="color:var(--text);">Bootcamp 3 jours</strong> — Formation intensive pré-événement pour les compétiteurs</span></li>
+                <li style="display:flex;gap:12px;align-items:flex-start;font-size:.875rem;color:var(--muted);"><span style="color:var(--green);font-weight:700;flex-shrink:0;margin-top:2px;">✓</span><span><strong style="color:var(--text);">300+ personnes sensibilisées</strong> à l'IA grâce aux ateliers et studios</span></li>
+                <li style="display:flex;gap:12px;align-items:flex-start;font-size:.875rem;color:var(--muted);"><span style="color:var(--green);font-weight:700;flex-shrink:0;margin-top:2px;">✓</span><span><strong style="color:var(--text);">20 solutions innovantes</strong> créées en 4 heures par des non-développeurs</span></li>
+                <li style="display:flex;gap:12px;align-items:flex-start;font-size:.875rem;color:var(--muted);"><span style="color:var(--green);font-weight:700;flex-shrink:0;margin-top:2px;">✓</span><span><strong style="color:var(--text);">90 jours d'incubation</strong> pour transformer les 3 meilleurs projets en startups</span></li>
+            </ul>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                <button onclick="showPage('about')" class="btn-primary">En savoir plus →</button>
+                <button onclick="showPage('organizers')" class="btn-secondary">L'équipe organisatrice</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== PHOTO WALL — Prix & Ambiance ===== -->
+<section style="padding:0 40px 80px;background:var(--bg);">
+    <div style="max-width:1200px;margin:0 auto;">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:stretch;" class="hero-grid">
+
+            <!-- Left: Award photo + overlay stat -->
+            <div class="photo-reveal tilt-card photo-card" style="height:320px;border-radius:14px;" id="award-photo">
+                <img src="https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?w=500&q=80&auto=format&fit=crop" alt="Award ceremony" loading="lazy" style="height:320px;">
+                <div class="photo-card-caption" style="opacity:1;background:linear-gradient(to top,rgba(13,17,23,.95) 0%,transparent 60%);">
+                    <span class="photo-card-tag">Remise des prix</span>
+                    <span class="photo-card-label">500 000 FCFA pour le 1er prix</span>
+                </div>
+            </div>
+
+            <!-- Center: Quote card (no photo, styled) -->
+            <div class="fade-up d1" style="background:linear-gradient(135deg,rgba(88,166,255,.08),rgba(163,113,247,.06));border:1px solid rgba(88,166,255,.18);border-radius:14px;padding:28px;display:flex;flex-direction:column;justify-content:space-between;">
+                <div>
+                    <div style="font-size:3rem;color:var(--accent);line-height:1;margin-bottom:12px;font-family:Georgia,serif;">"</div>
+                    <p style="font-size:.95rem;font-weight:600;color:var(--text);line-height:1.6;">Le Vibeathon prouve que l'innovation technologique en Afrique n'est plus une question de ressources, mais de volonté et d'accès aux bons outils.</p>
+                </div>
+                <div style="margin-top:20px;display:flex;align-items:center;gap:10px;">
+                    <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1f6feb,#a371f7);display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800;color:#fff;">N</div>
+                    <div><div style="font-size:.8rem;font-weight:700;color:var(--text);">Nelly Ossey</div><div style="font-size:.68rem;color:var(--dim);">Commissaire Général · CREATIV'O</div></div>
+                </div>
+            </div>
+
+            <!-- Right: Photo frame with badge -->
+            <div class="photo-frame tilt-card fade-up d2">
+                <img src="https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=500&q=80&auto=format&fit=crop" alt="Conference speaker" style="height:320px;object-fit:cover;" loading="lazy">
+                <div class="photo-frame-badge">
+                    <div class="photo-frame-badge-dot"></div>
+                    <div>
+                        <div class="photo-frame-badge-text">Keynotes & Panels</div>
+                        <div class="photo-frame-badge-sub">09h30 · CSCTICAO Abidjan</div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </section>
@@ -4060,9 +4433,90 @@ window.addEventListener('load', () => {
         });
     })();
 
+
+    /* ============================================================
+       PHOTO ANIMATIONS JS — Vibeathon 2026
+    ============================================================ */
+
+    /* Gallery items stagger reveal */
+    (function() {
+        var gObs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (!entry.isIntersecting) return;
+                gObs.unobserve(entry.target);
+                var items = entry.target.querySelectorAll('.gallery-item');
+                items.forEach(function(item, i) {
+                    setTimeout(function() { item.classList.add('visible'); }, i * 100);
+                });
+                var wall = entry.target.querySelectorAll('.photo-wall-item');
+                wall.forEach(function(item, i) {
+                    setTimeout(function() { item.style.opacity = '1'; item.style.transform = 'translateY(0)'; }, i * 80 + 200);
+                });
+            });
+        }, { threshold: 0.15 });
+        var gallery = document.getElementById('gallery-grid');
+        if (gallery) gObs.observe(gallery.closest('.gallery-wrap') || gallery);
+    })();
+
+    /* Photo wall initial state */
+    (function() {
+        document.querySelectorAll('.photo-wall-item').forEach(function(el) {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'opacity .5s ease, transform .5s ease';
+        });
+    })();
+
+    /* Photo reveal sweep — wipe animation on scroll */
+    (function() {
+        var rObs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    setTimeout(function() { entry.target.classList.add('wipe-done'); }, 100);
+                    rObs.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.25 });
+        document.querySelectorAll('.photo-reveal').forEach(function(el) { rObs.observe(el); });
+    })();
+
+    /* Parallax strip scroll effect */
+    (function() {
+        var strip = document.getElementById('parallax-strip-bg-1');
+        if (!strip) return;
+        function updateParallaxStrip() {
+            var section = document.getElementById('parallax-strip-1');
+            if (!section) return;
+            var rect = section.getBoundingClientRect();
+            var progress = -rect.top / (rect.height + window.innerHeight);
+            var offset = progress * 80;
+            strip.style.transform = 'translateY(' + offset.toFixed(1) + 'px)';
+        }
+        window.addEventListener('scroll', updateParallaxStrip, { passive: true });
+        updateParallaxStrip();
+    })();
+
+    /* Hero photo background subtle parallax */
+    (function() {
+        var heroBg = document.querySelector('.hero-photo-bg img');
+        if (!heroBg) return;
+        window.addEventListener('scroll', function() {
+            var offset = window.scrollY * 0.3;
+            heroBg.style.transform = 'scale(1.09) translateY(' + offset.toFixed(1) + 'px)';
+        }, { passive: true });
+    })();
+
+    /* Add tilt-card to new photo cards */
+    (function() {
+        document.querySelectorAll('.photo-card, .photo-frame').forEach(function(el) {
+            if (!el.classList.contains('tilt-card')) el.classList.add('tilt-card');
+        });
+    })();
+
 </script>
 </body>
 </html>
+
 
 
 
