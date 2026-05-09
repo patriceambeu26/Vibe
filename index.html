@@ -175,6 +175,229 @@
         });
     })();
 
+
+    /* ============================================================
+       GITHUB ANIMATIONS JS PACK 2
+    ============================================================ */
+
+    /* ── Scroll progress bar ── */
+    (function() {
+        const bar = document.createElement('div');
+        bar.id = 'scroll-progress-bar';
+        document.body.prepend(bar);
+        function updateBar() {
+            const max = document.documentElement.scrollHeight - window.innerHeight;
+            bar.style.width = max > 0 ? (window.scrollY / max * 100).toFixed(2) + '%' : '0%';
+        }
+        window.addEventListener('scroll', updateBar, { passive: true });
+        updateBar();
+    })();
+
+    /* ── Mouse glow trail ── */
+    (function() {
+        const glow = document.createElement('div');
+        glow.id = 'mouse-glow';
+        document.body.appendChild(glow);
+        let tx = -500, ty = -500, cx = -500, cy = -500;
+        document.addEventListener('mousemove', function(e) { tx = e.clientX; ty = e.clientY; }, { passive: true });
+        (function animGlow() {
+            cx += (tx - cx) * 0.07;
+            cy += (ty - cy) * 0.07;
+            glow.style.left = cx.toFixed(1) + 'px';
+            glow.style.top  = cy.toFixed(1) + 'px';
+            requestAnimationFrame(animGlow);
+        })();
+        document.addEventListener('mouseleave', function() { glow.style.opacity = '0'; });
+        document.addEventListener('mouseenter', function() { glow.style.opacity = '1'; });
+    })();
+
+    /* ── 3D card tilt on hover ── */
+    (function() {
+        function applyTilt(e) {
+            document.querySelectorAll('.tilt-card').forEach(function(card) {
+                const r = card.getBoundingClientRect();
+                const dx = e.clientX - (r.left + r.width / 2);
+                const dy = e.clientY - (r.top  + r.height / 2);
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                const maxDist = Math.sqrt(r.width*r.width + r.height*r.height) * 0.75;
+                if (dist > maxDist) { card.style.transform = ''; return; }
+                const rx =  (dy / r.height) * -10;
+                const ry =  (dx / r.width)  *  10;
+                card.style.transform = 'perspective(900px) rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg) translateZ(6px)';
+            });
+        }
+        function resetTilt() { document.querySelectorAll('.tilt-card').forEach(function(c) { c.style.transform = ''; }); }
+        document.addEventListener('mousemove', applyTilt, { passive: true });
+        document.addEventListener('mouseleave', resetTilt);
+    })();
+
+    /* ── Hero mouse parallax (blobs) ── */
+    (function() {
+        document.addEventListener('mousemove', function(e) {
+            const cx = (e.clientX / window.innerWidth  - 0.5) * 2;
+            const cy = (e.clientY / window.innerHeight - 0.5) * 2;
+            document.querySelectorAll('.parallax-layer').forEach(function(el) {
+                const depth = parseFloat(el.dataset.depth || '0.5');
+                el.style.transform = 'translate(' + (cx * depth * 18).toFixed(1) + 'px,' + (cy * depth * 12).toFixed(1) + 'px)';
+            });
+        }, { passive: true });
+    })();
+
+    /* ── Contribution grid generator + animator ── */
+    (function() {
+        const COLS = 52, ROWS = 7;
+        function buildGrid(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.style.gridTemplateColumns = 'repeat(' + COLS + ', 1fr)';
+            // Generate cells: higher probability of green near recent columns
+            for (let col = 0; col < COLS; col++) {
+                for (let row = 0; row < ROWS; row++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'contrib-cell';
+                    // Simulate activity pattern: recent weeks denser
+                    const recency = col / COLS; // 0=oldest, 1=newest
+                    const rand = Math.random();
+                    let lvl = 0;
+                    if (rand < 0.35 + recency * 0.25) lvl = 0;
+                    else if (rand < 0.55 + recency * 0.2) lvl = 1;
+                    else if (rand < 0.72 + recency * 0.15) lvl = 2;
+                    else if (rand < 0.88 + recency * 0.07) lvl = 3;
+                    else lvl = 4;
+                    cell.dataset.lvl = lvl;
+                    el.appendChild(cell);
+                }
+            }
+            // Animate on scroll
+            const obs = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (!entry.isIntersecting) return;
+                    obs.unobserve(entry.target);
+                    const cells = el.querySelectorAll('.contrib-cell');
+                    cells.forEach(function(cell, i) {
+                        setTimeout(function() {
+                            cell.classList.add('show', 'l' + cell.dataset.lvl);
+                        }, i * 4);
+                    });
+                });
+            }, { threshold: 0.2 });
+            obs.observe(el);
+        }
+        buildGrid('contrib-grid');
+    })();
+
+    /* ── GitHub Actions animated flow nodes ── */
+    (function() {
+        var flowObs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (!entry.isIntersecting) return;
+                flowObs.unobserve(entry.target);
+                var nodes = entry.target.querySelectorAll('.flow-node');
+                nodes.forEach(function(node, i) {
+                    setTimeout(function() {
+                        nodes.forEach(function(n) { n.classList.remove('active'); });
+                        node.classList.add('active');
+                        if (i > 0) nodes[i-1].classList.add('done');
+                    }, i * 900);
+                    setTimeout(function() {
+                        node.classList.remove('active');
+                        node.classList.add('done');
+                    }, nodes.length * 900 + 400);
+                });
+                // Loop
+                setTimeout(function() {
+                    nodes.forEach(function(n) { n.classList.remove('active','done'); });
+                    flowObs.observe(entry.target);
+                }, nodes.length * 900 + 1200);
+            });
+        }, { threshold: 0.5 });
+        document.querySelectorAll('.node-flow-anim').forEach(function(el) { flowObs.observe(el); });
+    })();
+
+    /* ── Stagger lists on scroll ── */
+    (function() {
+        var sObs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('revealed'); sObs.unobserve(e.target); } });
+        }, { threshold: 0.3 });
+        document.querySelectorAll('.stagger-list').forEach(function(el) { sObs.observe(el); });
+    })();
+
+    /* ── SVG connector lines ── */
+    (function() {
+        var cObs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('animated'); cObs.unobserve(e.target); } });
+        }, { threshold: 0.4 });
+        document.querySelectorAll('.connector-svg').forEach(function(el) { cObs.observe(el); });
+    })();
+
+    /* ── Add tilt-card to bento cards and profile cards ── */
+    (function() {
+        document.querySelectorAll('.bento-card, .profile-card, .impact-card, .partner-card').forEach(function(el) {
+            el.classList.add('tilt-card');
+        });
+    })();
+
+    /* ── Add parallax to hero blobs ── */
+    (function() {
+        var blobs = document.querySelectorAll('.blob');
+        blobs.forEach(function(b, i) { b.classList.add('parallax-layer'); b.dataset.depth = (0.3 + i * 0.15).toFixed(2); });
+    })();
+
+    /* ── Animated diff: typing effect on code diff blocks ── */
+    (function() {
+        var dObs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (!entry.isIntersecting) return;
+                dObs.unobserve(entry.target);
+                var lines = entry.target.querySelectorAll('.diff-line');
+                lines.forEach(function(line, i) {
+                    line.style.opacity = '0';
+                    setTimeout(function() {
+                        line.style.transition = 'opacity .3s ease, transform .3s ease';
+                        line.style.opacity = '1';
+                        if (line.classList.contains('add')) {
+                            line.style.transform = 'translateX(-6px)';
+                            requestAnimationFrame(function() { line.style.transform = 'translateX(0)'; });
+                        }
+                    }, i * 120);
+                });
+            });
+        }, { threshold: 0.4 });
+        document.querySelectorAll('.code-diff').forEach(function(el) { dObs.observe(el); });
+    })();
+
+    /* ── Smooth showPage with transition ── */
+    (function() {
+        if (typeof showPage !== 'function') return;
+        var origShowPage = showPage;
+        window.showPage = function(id) {
+            var active = document.querySelector('.page.active');
+            if (active) {
+                active.style.transition = 'opacity .15s ease, transform .15s ease';
+                active.style.opacity = '0';
+                active.style.transform = 'translateY(-10px)';
+            }
+            setTimeout(function() {
+                if (active) { active.style.transition = ''; active.style.opacity = ''; active.style.transform = ''; }
+                origShowPage(id);
+            }, 150);
+        };
+    })();
+
+    /* ── Squiggly underline auto-init on .squig-wrap ── */
+    (function() {
+        document.querySelectorAll('.squig-wrap').forEach(function(el) {
+            if (el.querySelector('svg')) return;
+            var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', '0 0 200 8');
+            svg.setAttribute('preserveAspectRatio', 'none');
+            var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', 'M0,4 Q10,1 20,4 Q30,7 40,4 Q50,1 60,4 Q70,7 80,4 Q90,1 100,4 Q110,7 120,4 Q130,1 140,4 Q150,7 160,4 Q170,1 180,4 Q190,7 200,4');
+            svg.appendChild(path);
+            el.appendChild(svg);
+        });
+    })();
+
 </script>
     <style>
 
@@ -1471,6 +1694,132 @@
             .hero-term-col { display:none; }
         }
 
+
+        /* ============================================================
+           GITHUB ANIMATIONS PACK 2 — Scroll bar · Glow · Tilt · Grid
+        ============================================================ */
+
+        /* Scroll progress bar (thin gradient line at top — GitHub style) */
+        #scroll-progress-bar {
+            position: fixed; top: 0; left: 0; height: 2px; width: 0%;
+            background: linear-gradient(90deg, #58a6ff 0%, #a371f7 40%, #3fb950 70%, #f78166 100%);
+            z-index: 10000; transition: width .1s linear; border-radius: 0 2px 2px 0;
+            box-shadow: 0 0 8px rgba(88,166,255,.5);
+        }
+
+        /* Mouse glow — subtle radial that follows cursor */
+        #mouse-glow {
+            position: fixed; width: 420px; height: 420px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(88,166,255,.04) 0%, transparent 68%);
+            pointer-events: none; transform: translate(-50%,-50%); z-index: 1;
+            left: -500px; top: -500px; transition: opacity .3s;
+        }
+
+        /* 3D tilt cards */
+        .tilt-card { transform-style: preserve-3d; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+        .tilt-card:hover { box-shadow: 0 24px 64px rgba(0,0,0,.35), 0 0 0 1px rgba(88,166,255,.18); border-color: rgba(88,166,255,.25) !important; }
+
+        /* Contribution grid — GitHub's signature green squares */
+        .contrib-section { padding: 64px 40px; }
+        .contrib-wrap { max-width: 1200px; margin: 0 auto; }
+        .contrib-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+        .contrib-title { font-size: .78rem; font-weight: 600; color: var(--muted); }
+        .contrib-legend { display: flex; gap: 4px; align-items: center; font-size: .65rem; color: var(--dim); }
+        .contrib-legend span { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+        #contrib-grid { display: grid; gap: 3px; width: 100%; }
+        .contrib-cell {
+            aspect-ratio: 1; border-radius: 2px; background: #161b22;
+            opacity: 0; transform: scale(0);
+            transition: background .15s, opacity .15s, transform .15s;
+            cursor: default;
+        }
+        .contrib-cell.show { opacity: 1; transform: scale(1); }
+        .contrib-cell.l0 { background: #161b22; }
+        .contrib-cell.l1 { background: rgba(57,211,83,.20); }
+        .contrib-cell.l2 { background: rgba(57,211,83,.42); }
+        .contrib-cell.l3 { background: rgba(57,211,83,.68); }
+        .contrib-cell.l4 { background: rgba(57,211,83,.88); }
+        .contrib-cell:hover { outline: 1px solid rgba(255,255,255,.3); transform: scale(1.15) !important; }
+        .contrib-day-labels { display: grid; font-size: .6rem; color: var(--dim); margin-bottom: 4px; text-align: left; }
+        .contrib-month-labels { display: flex; justify-content: space-between; font-size: .6rem; color: var(--dim); margin-bottom: 6px; }
+
+        /* Animated squiggly underline */
+        .squig-wrap { position: relative; display: inline-block; }
+        .squig-wrap svg { position: absolute; bottom: -6px; left: 0; width: 100%; height: 8px; overflow: visible; pointer-events: none; }
+        .squig-wrap svg path { stroke: var(--accent); stroke-width: 2.2; fill: none; stroke-dasharray: 6 2; animation: squig-move 1.8s linear infinite; }
+        @keyframes squig-move { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -20; } }
+
+        /* Animated code diff */
+        .code-diff { background: #0d1117; border: 1px solid var(--border); border-radius: 10px; font-family: 'SFMono-Regular',Consolas,monospace; font-size: .73rem; overflow: hidden; }
+        .code-diff-bar { background: #161b22; border-bottom: 1px solid var(--border); padding: 9px 14px; display: flex; align-items: center; gap: 6px; font-size: .68rem; color: var(--muted); }
+        .diff-line { padding: 1.5px 14px 1.5px 26px; line-height: 1.9; position: relative; }
+        .diff-line.add { background: rgba(63,185,80,.07); color: #3fb950; }
+        .diff-line.add::before { content: '+'; position: absolute; left: 10px; color: rgba(63,185,80,.6); }
+        .diff-line.rem { background: rgba(247,129,102,.07); color: #f78166; }
+        .diff-line.rem::before { content: '-'; position: absolute; left: 10px; color: rgba(247,129,102,.6); }
+        .diff-line.ctx { color: var(--muted); }
+        .diff-highlight { display: inline; background: rgba(88,166,255,.22); border-radius: 3px; padding: 1px 4px; animation: diff-glow 2.5s ease-in-out infinite; }
+        @keyframes diff-glow { 0%,100% { background: rgba(88,166,255,.14); } 50% { background: rgba(88,166,255,.32); } }
+        .diff-new-badge { display: inline-block; background: rgba(57,211,83,.15); border: 1px solid rgba(57,211,83,.25); border-radius: 4px; padding: 0 6px; font-size: .6rem; font-weight: 700; color: #3fb950; margin-left: 6px; vertical-align: middle; }
+
+        /* Animated SVG connector lines */
+        @keyframes path-draw { from { stroke-dashoffset: 400; } to { stroke-dashoffset: 0; } }
+        .connector-svg path { stroke-dasharray: 400; stroke-dashoffset: 400; }
+        .connector-svg.animated path { animation: path-draw 1.6s cubic-bezier(.4,0,.2,1) forwards; }
+
+        /* Node graph / GitHub Actions animated flow */
+        .node-flow { display: flex; align-items: center; gap: 0; position: relative; }
+        .flow-node { background: var(--surface); border: 1px solid var(--border-soft); border-radius: 8px; padding: 8px 14px; font-size: .72rem; font-weight: 600; color: var(--text); white-space: nowrap; z-index: 1; transition: border-color .3s, box-shadow .3s; }
+        .flow-node.active { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(88,166,255,.12); color: var(--accent); }
+        .flow-node.done { border-color: var(--green); color: var(--green); }
+        .flow-arrow { width: 32px; height: 2px; background: var(--border-soft); flex-shrink: 0; position: relative; overflow: hidden; }
+        .flow-arrow::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, var(--accent)); animation: flow-arrow-anim 2s linear infinite; }
+        @keyframes flow-arrow-anim { from { left: -100%; } to { left: 100%; } }
+        .flow-arrow-head { color: var(--border); font-size: .6rem; flex-shrink: 0; }
+
+        /* Page transition (smooth enter) */
+        .page.active { animation: page-enter .32s cubic-bezier(.4,0,.2,1); }
+        @keyframes page-enter { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Parallax layers */
+        .parallax-layer { will-change: transform; transition: transform .25s cubic-bezier(.25,.46,.45,.94); }
+
+        /* Animated CTA gradient border */
+        .cta-grad-border { position: relative; display: inline-block; border-radius: 8px; padding: 2px; }
+        .cta-grad-border::before { content: ''; position: absolute; inset: 0; border-radius: 8px; background: linear-gradient(90deg,#58a6ff,#a371f7,#3fb950,#f78166,#58a6ff); background-size: 200% 100%; animation: grad-border-rotate 3s linear infinite; z-index: -1; }
+        @keyframes grad-border-rotate { 0%{background-position:0%50%} 100%{background-position:200%50%} }
+
+        /* Number counter glow on finish */
+        .stat-number.counted { animation: num-pop .4s cubic-bezier(.34,1.56,.64,1); }
+        @keyframes num-pop { 0%{transform:scale(1)} 50%{transform:scale(1.18);color:var(--accent);} 100%{transform:scale(1)} }
+
+        /* Typing indicator (3 dots) — GitHub Copilot style */
+        .gh-typing-bar { display: flex; gap: 5px; padding: 6px 0; }
+        .gh-typing-bar span { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: gh-dot .9s ease-in-out infinite; opacity: .4; }
+        .gh-typing-bar span:nth-child(2){animation-delay:.2s;} .gh-typing-bar span:nth-child(3){animation-delay:.4s;}
+        @keyframes gh-dot { 0%,100%{transform:translateY(0);opacity:.35} 50%{transform:translateY(-5px);opacity:1} }
+
+        /* Animated glowing badge (like GitHub's green "Available" pill) */
+        .live-badge { display: inline-flex; align-items: center; gap: 5px; background: rgba(63,185,80,.1); border: 1px solid rgba(63,185,80,.25); border-radius: 100px; padding: 4px 10px; font-size: .68rem; font-weight: 700; color: var(--green); }
+        .live-badge::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: live-pulse 1.8s ease-in-out infinite; flex-shrink: 0; }
+        @keyframes live-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(63,185,80,0)} 50%{box-shadow:0 0 0 5px rgba(63,185,80,.25)} }
+
+        /* Shimmer loading on cards */
+        @keyframes shimmer { from{background-position:-200% 0} to{background-position:200% 0} }
+        .shimmer-card { background: linear-gradient(90deg, var(--surface) 25%, rgba(255,255,255,.03) 50%, var(--surface) 75%); background-size: 200% 100%; animation: shimmer 2.5s ease-in-out infinite; }
+
+        /* Staggered list item reveal */
+        .stagger-list li { opacity: 0; transform: translateX(-16px); transition: opacity .45s ease, transform .45s ease; }
+        .stagger-list.revealed li:nth-child(1){opacity:1;transform:none;transition-delay:.05s}
+        .stagger-list.revealed li:nth-child(2){opacity:1;transform:none;transition-delay:.12s}
+        .stagger-list.revealed li:nth-child(3){opacity:1;transform:none;transition-delay:.19s}
+        .stagger-list.revealed li:nth-child(4){opacity:1;transform:none;transition-delay:.26s}
+        .stagger-list.revealed li:nth-child(5){opacity:1;transform:none;transition-delay:.33s}
+
+        /* Hero text character animation */
+        @keyframes char-drop { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+        .char-anim span { display: inline-block; animation: char-drop .5s cubic-bezier(.34,1.56,.64,1) both; }
+
         </style>
 </head>
 <body>
@@ -1850,6 +2199,115 @@
                 <div class="impact-label">Incubation pour les lauréats</div>
                 <div class="pbar-wrap"><div class="pbar-bg"><div class="pbar-fill" style="width:90%;--c1:#a371f7;--c2:#58a6ff;"></div></div></div>
                 <p style="font-size:.75rem;color:var(--dim);margin-top:10px;line-height:1.6;">Programme structuré pour accélérer les 3 meilleurs projets ivoiriens.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- ===== CONTRIBUTION GRID — GitHub's signature green squares ===== -->
+<div class="contrib-section">
+    <div class="contrib-wrap reveal">
+        <div class="contrib-header">
+            <span class="contrib-title">Rejoins le mouvement — activité de la communauté Vibeathon</span>
+            <div class="contrib-legend">
+                <span>Moins</span>
+                <span style="background:#161b22;width:10px;height:10px;border-radius:2px;display:inline-block;"></span>
+                <span class="contrib-legend-cell" style="background:rgba(57,211,83,.2);width:10px;height:10px;border-radius:2px;display:inline-block;"></span>
+                <span class="contrib-legend-cell" style="background:rgba(57,211,83,.42);width:10px;height:10px;border-radius:2px;display:inline-block;"></span>
+                <span class="contrib-legend-cell" style="background:rgba(57,211,83,.68);width:10px;height:10px;border-radius:2px;display:inline-block;"></span>
+                <span class="contrib-legend-cell" style="background:rgba(57,211,83,.88);width:10px;height:10px;border-radius:2px;display:inline-block;"></span>
+                <span>Plus</span>
+            </div>
+        </div>
+        <div id="contrib-grid"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:.6rem;color:var(--dim);">
+            <span>Jan</span><span>Fév</span><span>Mar</span><span>Avr</span><span>Mai</span><span>Juin</span><span>Juil</span><span style="color:var(--green);font-weight:700;">← 11 Juil 2026</span>
+        </div>
+    </div>
+</div>
+
+<!-- ===== CODE DIFF + NODE FLOW — GitHub Actions / Copilot ===== -->
+<section style="padding:80px 40px;background:var(--surface);border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft);">
+    <div style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;" class="hero-grid">
+
+        <!-- Code diff panel -->
+        <div class="fade-up">
+            <span class="gh-eyebrow" style="color:var(--purple);">VIBECODING EN DIRECT</span>
+            <h3 style="font-size:1.6rem;font-weight:800;margin:12px 0;letter-spacing:-1px;">De l'idée au code<br><span style="background:linear-gradient(135deg,#a371f7,#58a6ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">en quelques secondes.</span></h3>
+            <p style="color:var(--muted);font-size:.875rem;line-height:1.7;margin-bottom:20px;">Tu décris ce que tu veux. L'IA génère, corrige, améliore. Voici un exemple réel de vibecoding lors du Bootcamp.</p>
+            <div class="live-badge" style="margin-bottom:20px;">Démo live Bootcamp</div>
+
+            <div class="code-diff">
+                <div class="code-diff-bar">
+                    <span style="width:10px;height:10px;border-radius:50%;background:#ff5f57;display:inline-block;"></span>
+                    <span style="width:10px;height:10px;border-radius:50%;background:#ffbd2e;display:inline-block;"></span>
+                    <span style="width:10px;height:10px;border-radius:50%;background:#28c940;display:inline-block;"></span>
+                    <span style="margin-left:6px;">app-gestion-pme.js</span>
+                    <span class="diff-new-badge">IA modifiée</span>
+                </div>
+                <div style="padding:6px 0;">
+                    <div class="diff-line ctx">// Gestion financière PME — Côte d'Ivoire</div>
+                    <div class="diff-line rem">function calculerTVA(montant) { return montant * 0.18; }</div>
+                    <div class="diff-line add">function calculerTVA(<span class="diff-highlight">montant, tauxCi = 0.18</span>) {</div>
+                    <div class="diff-line add">&nbsp;&nbsp;const tva = montant * tauxCi;</div>
+                    <div class="diff-line add">&nbsp;&nbsp;return <span class="diff-highlight">{ tva, ttc: montant + tva, ht: montant }</span>;</div>
+                    <div class="diff-line add">}</div>
+                    <div class="diff-line ctx">&nbsp;</div>
+                    <div class="diff-line rem">// TODO: ajouter paiement Wave</div>
+                    <div class="diff-line add">async function payerWave(<span class="diff-highlight">montant, telephone</span>) {</div>
+                    <div class="diff-line add">&nbsp;&nbsp;const res = await wave.initPayment({ montant, telephone });</div>
+                    <div class="diff-line add">&nbsp;&nbsp;return <span class="diff-highlight">res.status === 'success'</span>;</div>
+                    <div class="diff-line add">} <span class="diff-new-badge">généré par IA</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GitHub Actions flow nodes -->
+        <div class="fade-up d1">
+            <span class="gh-eyebrow" style="color:var(--green);">PIPELINE VIBEATHON</span>
+            <h3 style="font-size:1.6rem;font-weight:800;margin:12px 0;letter-spacing:-1px;">Ton parcours<br><span style="background:linear-gradient(135deg,#3fb950,#39d353);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">étape par étape.</span></h3>
+            <p style="color:var(--muted);font-size:.875rem;line-height:1.7;margin-bottom:24px;">Comme GitHub Actions, chaque étape s'enchaîne automatiquement. De l'inscription à la remise des prix.</p>
+
+            <!-- Animated flow pipeline -->
+            <div style="display:flex;flex-direction:column;gap:10px;" class="node-flow-anim">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="flow-node" style="flex:1;">📝 Inscription</div>
+                    <div class="flow-arrow" style="width:20px;"></div>
+                    <div class="flow-node" style="flex:1;">💳 Paiement</div>
+                    <div class="flow-arrow" style="width:20px;"></div>
+                    <div class="flow-node" style="flex:1;">✅ Confirmation</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="flow-node" style="flex:1;">🎓 Bootcamp 3j</div>
+                    <div class="flow-arrow" style="width:20px;"></div>
+                    <div class="flow-node" style="flex:1;">🏗 Compétition</div>
+                    <div class="flow-arrow" style="width:20px;"></div>
+                    <div class="flow-node" style="flex:1;">🎤 Pitch</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <div class="flow-node" style="flex:1;">🏆 Prix 950K</div>
+                    <div class="flow-arrow" style="width:20px;"></div>
+                    <div class="flow-node" style="flex:1;">🚀 30j Accomp.</div>
+                    <div class="flow-arrow" style="width:20px;"></div>
+                    <div class="flow-node" style="flex:1;">🏭 90j Incubation</div>
+                </div>
+            </div>
+
+            <!-- SVG connector between rows -->
+            <svg class="connector-svg" width="100%" height="30" style="margin:4px 0;" viewBox="0 0 400 30" fill="none" preserveAspectRatio="none">
+                <path d="M200,0 C200,15 200,15 200,30" stroke="var(--border)" stroke-width="1.5"/>
+            </svg>
+
+            <div style="background:var(--bg);border:1px solid var(--border-soft);border-radius:8px;padding:14px;margin-top:4px;">
+                <div style="font-size:.65rem;color:var(--muted);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">Statuts des étapes</div>
+                <ul class="stagger-list" style="list-style:none;padding:0;display:flex;flex-direction:column;gap:6px;">
+                    <li style="display:flex;gap:8px;font-size:.78rem;align-items:center;"><span style="color:var(--green);">✓</span> Inscriptions ouvertes</li>
+                    <li style="display:flex;gap:8px;font-size:.78rem;align-items:center;"><span style="color:var(--green);">✓</span> Bootcamp confirmé — 3 jours pré-événement</li>
+                    <li style="display:flex;gap:8px;font-size:.78rem;align-items:center;"><span style="color:var(--orange);">○</span> Compétition — 11 Juillet 2026</li>
+                    <li style="display:flex;gap:8px;font-size:.78rem;align-items:center;"><span style="color:var(--dim);">○</span> Pitches &amp; remise des prix</li>
+                    <li style="display:flex;gap:8px;font-size:.78rem;align-items:center;"><span style="color:var(--dim);">○</span> Programme d'incubation 90 jours</li>
+                </ul>
             </div>
         </div>
     </div>
@@ -3379,9 +3837,233 @@ window.addEventListener('load', () => {
         });
     })();
 
+
+    /* ============================================================
+       GITHUB ANIMATIONS JS PACK 2
+    ============================================================ */
+
+    /* ── Scroll progress bar ── */
+    (function() {
+        const bar = document.createElement('div');
+        bar.id = 'scroll-progress-bar';
+        document.body.prepend(bar);
+        function updateBar() {
+            const max = document.documentElement.scrollHeight - window.innerHeight;
+            bar.style.width = max > 0 ? (window.scrollY / max * 100).toFixed(2) + '%' : '0%';
+        }
+        window.addEventListener('scroll', updateBar, { passive: true });
+        updateBar();
+    })();
+
+    /* ── Mouse glow trail ── */
+    (function() {
+        const glow = document.createElement('div');
+        glow.id = 'mouse-glow';
+        document.body.appendChild(glow);
+        let tx = -500, ty = -500, cx = -500, cy = -500;
+        document.addEventListener('mousemove', function(e) { tx = e.clientX; ty = e.clientY; }, { passive: true });
+        (function animGlow() {
+            cx += (tx - cx) * 0.07;
+            cy += (ty - cy) * 0.07;
+            glow.style.left = cx.toFixed(1) + 'px';
+            glow.style.top  = cy.toFixed(1) + 'px';
+            requestAnimationFrame(animGlow);
+        })();
+        document.addEventListener('mouseleave', function() { glow.style.opacity = '0'; });
+        document.addEventListener('mouseenter', function() { glow.style.opacity = '1'; });
+    })();
+
+    /* ── 3D card tilt on hover ── */
+    (function() {
+        function applyTilt(e) {
+            document.querySelectorAll('.tilt-card').forEach(function(card) {
+                const r = card.getBoundingClientRect();
+                const dx = e.clientX - (r.left + r.width / 2);
+                const dy = e.clientY - (r.top  + r.height / 2);
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                const maxDist = Math.sqrt(r.width*r.width + r.height*r.height) * 0.75;
+                if (dist > maxDist) { card.style.transform = ''; return; }
+                const rx =  (dy / r.height) * -10;
+                const ry =  (dx / r.width)  *  10;
+                card.style.transform = 'perspective(900px) rotateX(' + rx.toFixed(2) + 'deg) rotateY(' + ry.toFixed(2) + 'deg) translateZ(6px)';
+            });
+        }
+        function resetTilt() { document.querySelectorAll('.tilt-card').forEach(function(c) { c.style.transform = ''; }); }
+        document.addEventListener('mousemove', applyTilt, { passive: true });
+        document.addEventListener('mouseleave', resetTilt);
+    })();
+
+    /* ── Hero mouse parallax (blobs) ── */
+    (function() {
+        document.addEventListener('mousemove', function(e) {
+            const cx = (e.clientX / window.innerWidth  - 0.5) * 2;
+            const cy = (e.clientY / window.innerHeight - 0.5) * 2;
+            document.querySelectorAll('.parallax-layer').forEach(function(el) {
+                const depth = parseFloat(el.dataset.depth || '0.5');
+                el.style.transform = 'translate(' + (cx * depth * 18).toFixed(1) + 'px,' + (cy * depth * 12).toFixed(1) + 'px)';
+            });
+        }, { passive: true });
+    })();
+
+    /* ── Contribution grid generator + animator ── */
+    (function() {
+        const COLS = 52, ROWS = 7;
+        function buildGrid(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.style.gridTemplateColumns = 'repeat(' + COLS + ', 1fr)';
+            // Generate cells: higher probability of green near recent columns
+            for (let col = 0; col < COLS; col++) {
+                for (let row = 0; row < ROWS; row++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'contrib-cell';
+                    // Simulate activity pattern: recent weeks denser
+                    const recency = col / COLS; // 0=oldest, 1=newest
+                    const rand = Math.random();
+                    let lvl = 0;
+                    if (rand < 0.35 + recency * 0.25) lvl = 0;
+                    else if (rand < 0.55 + recency * 0.2) lvl = 1;
+                    else if (rand < 0.72 + recency * 0.15) lvl = 2;
+                    else if (rand < 0.88 + recency * 0.07) lvl = 3;
+                    else lvl = 4;
+                    cell.dataset.lvl = lvl;
+                    el.appendChild(cell);
+                }
+            }
+            // Animate on scroll
+            const obs = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (!entry.isIntersecting) return;
+                    obs.unobserve(entry.target);
+                    const cells = el.querySelectorAll('.contrib-cell');
+                    cells.forEach(function(cell, i) {
+                        setTimeout(function() {
+                            cell.classList.add('show', 'l' + cell.dataset.lvl);
+                        }, i * 4);
+                    });
+                });
+            }, { threshold: 0.2 });
+            obs.observe(el);
+        }
+        buildGrid('contrib-grid');
+    })();
+
+    /* ── GitHub Actions animated flow nodes ── */
+    (function() {
+        var flowObs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (!entry.isIntersecting) return;
+                flowObs.unobserve(entry.target);
+                var nodes = entry.target.querySelectorAll('.flow-node');
+                nodes.forEach(function(node, i) {
+                    setTimeout(function() {
+                        nodes.forEach(function(n) { n.classList.remove('active'); });
+                        node.classList.add('active');
+                        if (i > 0) nodes[i-1].classList.add('done');
+                    }, i * 900);
+                    setTimeout(function() {
+                        node.classList.remove('active');
+                        node.classList.add('done');
+                    }, nodes.length * 900 + 400);
+                });
+                // Loop
+                setTimeout(function() {
+                    nodes.forEach(function(n) { n.classList.remove('active','done'); });
+                    flowObs.observe(entry.target);
+                }, nodes.length * 900 + 1200);
+            });
+        }, { threshold: 0.5 });
+        document.querySelectorAll('.node-flow-anim').forEach(function(el) { flowObs.observe(el); });
+    })();
+
+    /* ── Stagger lists on scroll ── */
+    (function() {
+        var sObs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('revealed'); sObs.unobserve(e.target); } });
+        }, { threshold: 0.3 });
+        document.querySelectorAll('.stagger-list').forEach(function(el) { sObs.observe(el); });
+    })();
+
+    /* ── SVG connector lines ── */
+    (function() {
+        var cObs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(e) { if (e.isIntersecting) { e.target.classList.add('animated'); cObs.unobserve(e.target); } });
+        }, { threshold: 0.4 });
+        document.querySelectorAll('.connector-svg').forEach(function(el) { cObs.observe(el); });
+    })();
+
+    /* ── Add tilt-card to bento cards and profile cards ── */
+    (function() {
+        document.querySelectorAll('.bento-card, .profile-card, .impact-card, .partner-card').forEach(function(el) {
+            el.classList.add('tilt-card');
+        });
+    })();
+
+    /* ── Add parallax to hero blobs ── */
+    (function() {
+        var blobs = document.querySelectorAll('.blob');
+        blobs.forEach(function(b, i) { b.classList.add('parallax-layer'); b.dataset.depth = (0.3 + i * 0.15).toFixed(2); });
+    })();
+
+    /* ── Animated diff: typing effect on code diff blocks ── */
+    (function() {
+        var dObs = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (!entry.isIntersecting) return;
+                dObs.unobserve(entry.target);
+                var lines = entry.target.querySelectorAll('.diff-line');
+                lines.forEach(function(line, i) {
+                    line.style.opacity = '0';
+                    setTimeout(function() {
+                        line.style.transition = 'opacity .3s ease, transform .3s ease';
+                        line.style.opacity = '1';
+                        if (line.classList.contains('add')) {
+                            line.style.transform = 'translateX(-6px)';
+                            requestAnimationFrame(function() { line.style.transform = 'translateX(0)'; });
+                        }
+                    }, i * 120);
+                });
+            });
+        }, { threshold: 0.4 });
+        document.querySelectorAll('.code-diff').forEach(function(el) { dObs.observe(el); });
+    })();
+
+    /* ── Smooth showPage with transition ── */
+    (function() {
+        if (typeof showPage !== 'function') return;
+        var origShowPage = showPage;
+        window.showPage = function(id) {
+            var active = document.querySelector('.page.active');
+            if (active) {
+                active.style.transition = 'opacity .15s ease, transform .15s ease';
+                active.style.opacity = '0';
+                active.style.transform = 'translateY(-10px)';
+            }
+            setTimeout(function() {
+                if (active) { active.style.transition = ''; active.style.opacity = ''; active.style.transform = ''; }
+                origShowPage(id);
+            }, 150);
+        };
+    })();
+
+    /* ── Squiggly underline auto-init on .squig-wrap ── */
+    (function() {
+        document.querySelectorAll('.squig-wrap').forEach(function(el) {
+            if (el.querySelector('svg')) return;
+            var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', '0 0 200 8');
+            svg.setAttribute('preserveAspectRatio', 'none');
+            var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', 'M0,4 Q10,1 20,4 Q30,7 40,4 Q50,1 60,4 Q70,7 80,4 Q90,1 100,4 Q110,7 120,4 Q130,1 140,4 Q150,7 160,4 Q170,1 180,4 Q190,7 200,4');
+            svg.appendChild(path);
+            el.appendChild(svg);
+        });
+    })();
+
 </script>
 </body>
 </html>
+
 
 
 
